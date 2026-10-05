@@ -1,29 +1,67 @@
-# Bank Agentic Model — credit-default research
+# Bank Agentic Model — Credit Risk Research
 
-งานวิจัยภาษาไทยที่ตรวจย้อนกลับได้: ตรวจ dataset, เปรียบเทียบโมเดล, วิเคราะห์สิ่งที่ทำนายพลาด และใช้ agent ช่วยรีวิวหลักฐาน/โค้ด โครงการนี้ทดลองกับ UCI/Kaggle credit-card cohort ไต้หวันปี 2005 ยังไม่มีข้อมูลธนาคารไทยหรือ independent out-of-time validation
+โครงการวิจัยการทำนาย **การผิดนัดชำระหนี้ (credit default)** จากข้อมูลผู้ถือบัตรเครดิต พร้อมการเปรียบเทียบโมเดล วิเคราะห์ข้อผิดพลาด (failure analysis) และตรวจสอบหลักฐานผลทดลอง ใช้ UCI/Kaggle Default of Credit Card Clients ซึ่งเป็นข้อมูลไต้หวันปี 2005; ยังไม่มีผล validation บนข้อมูลธนาคารไทย
 
-**สถานะ 5 ตุลาคม 2026:** candidate V3 ที่เลือก depth/iterations ภายใน nested group folds ให้ OOF log loss **0.425785** เทียบ V2 **0.427110** และ AUC **0.785682** เทียบ **0.784847** แต่มีหนึ่ง outer fold ที่แย่ลง จึง **คง V2** ตาม gate ที่กำหนดก่อนรัน ไม่เปลี่ยนเกณฑ์ตามผลที่เห็น
+**สถานะ 5 ตุลาคม 2026:** มีผล TabPFN-3.5 ทั้ง context 1,000 และ 4,000 แถว ส่วนโมเดลหลักที่เลือกไว้ยังเป็น **V2: CatBoost 75% + LightGBM 25%** เพราะ candidate ในรอบ V3 ไม่ผ่านเกณฑ์เปลี่ยนโมเดล (promotion gate)
 
-- [ผลรอบสามและ failure analysis ภาษาไทย](reports/v3/REPORT_TH.md)
-- [Literature review เพิ่มเติมและ data exploration](research/ITERATION_3_RESEARCH_TH.md)
-- [Graph ML สำหรับ fraud และขอบเขต event ในธนาคาร](research/GRAPH_FRAUD_AND_BANK_EVENT_SCOPE_TH.md) — audit ข้อมูลเดิมและตรวจนิยาม labels ของ graph benchmarks
-- [Protocol](reports/v3/protocol.json), [คำตัดสิน gate](reports/v3/selection.json), [verification](reports/v3/verification.json)
-- [ผลรอบสอง](reports/v2/REPORT_TH.md) และ [ผลรอบแรก](reports/v1/REPORT_TH.md)
-- [การตรวจข้อเสนอ agy](research/AGY_V3_REVIEW_DISPOSITION_TH.md), [โครงสร้างโค้ด](docs/ARCHITECTURE.md), [data provenance](data/README.md)
+รอบทดลอง V1/V2/V3 เป็นลำดับการพัฒนาโครงการ ส่วน TabPFN V2 และ TabPFN-3.5 เป็นรุ่นของโมเดล จึงใช้คำว่า “รอบทดลอง” และ “รุ่นโมเดล” แยกกัน
 
-โมเดล V2 ที่คงไว้เป็น CatBoost trajectory depth 6 (75%) + LightGBM 15 leaves (25%) ผล **test เดิมที่เคยเปิดแล้ว**: AUC 0.786933, log loss 0.426866, Brier 0.134399 ตัวเลขนี้เป็น descriptive historical reference; ไม่ใช้ยืนยันว่าเหมาะกับธนาคารไทย, เป็นโมเดลที่ดีที่สุดทั่วไป หรือพร้อมตัดสินสินเชื่อจริง
+เริ่มอ่าน: [ผล TabPFN](#ผล-tabpfn) · [ผลโมเดลหลัก](#ผลโมเดลหลัก-v2-และ-v3) · [วิธีรัน](#ติดตั้งและทำซ้ำ) · [คำศัพท์](docs/TERMINOLOGY_TH.md) · [ขอบเขต fraud และงานธนาคาร](research/GRAPH_FRAUD_AND_BANK_EVENT_SCOPE_TH.md)
 
-## สิ่งที่เพิ่มและตรวจจริง
+## ผล TabPFN
 
-สำรวจ original fit 16,500 แถวเพิ่ม พบว่ากลุ่มไม่มี PAY code เป็นบวกยังมี default labels 11.83%; ในกลุ่มนี้ ยอดชำระเป็นศูนย์อย่างน้อย 3 snapshots มีอัตรา 18.43% เทียบ 10.75% เมื่อมีน้อยกว่า 3 snapshots เป็น association ที่วัดได้ ไม่ใช่คำอธิบายสาเหตุหรือความหมายที่เดาของ category codes
+**Context** คือแถวที่มี features และ labels ซึ่ง TabPFN ใช้ประกอบการทำนาย การ `fit` ในการทดลองนี้เตรียม context/preprocessing ไม่ได้ฝึกน้ำหนัก foundation model ใหม่
 
-แยกโค้ดเป็น `src/creditrisk` พร้อม schema/probability checks, categorical adapters, nested fitting และ scoring ที่รักษา row/index order ตรวจ feature migration ทุกเซลล์ของจริง 30,000 แถวตรงกับ V2 และตรวจ save/reload/batch/single-row parity เก็บ historical scripts เดิมไว้เพราะมี source hashes ใน frozen manifests
+ตารางแสดงผลประเมินบน **ชุดทดสอบอ้างอิง (reference test) 4,500 แถวชุดเดียวกัน** ซึ่งเคยนำผลมาวิเคราะห์แล้ว เลือก calibrator ด้วย group CV ใน calibration partition 600 แถว ไม่ใช้ test เลือก calibrator
 
-agy ช่วย method/code review ผ่าน native CLI ใน plan mode โดยอ่านวัสดุที่ส่งให้เท่านั้น ข้อเสนอถูกตรวจซ้ำกับ source/tests/ผลจริง ไม่อ้างว่า agent ตรวจ raw data อิสระ และไม่มีการเรียก Gemini CLI
+ทุกคู่ที่ขนาดข้อมูลเท่ากันใช้แถว fit/context เดียวกัน, validation 400 แถว และ 23 predictors ต้นฉบับ ใช้ CPU; TabPFN มี 2 ensemble estimators ส่วน CatBoost comparator ใช้ parameters ที่กำหนดไว้ล่วงหน้า
 
-## เริ่มใช้งานและทำซ้ำ
+| โมเดล | Fit/context (แถว) | ROC-AUC ↑ | AP ↑ | Log loss ↓ | Brier score ↓ |
+|---|---:|---:|---:|---:|---:|
+| TabPFN V2 | 1,000 | 0.764451 | 0.511527 | 0.441931 | 0.139193 |
+| TabPFN-3.5 | 1,000 | 0.772835 | 0.525400 | 0.434855 | 0.136513 |
+| CatBoost comparator | 1,000 | 0.755604 | 0.495981 | 0.448645 | 0.141974 |
+| TabPFN-3.5 | 4,000 | 0.781629 | 0.536987 | 0.432689 | 0.136405 |
+| CatBoost comparator | 4,000 | 0.766467 | 0.517758 | 0.442382 | 0.139899 |
 
-ใช้ Python 3.12; ตัวอย่าง Windows PowerShell:
+**ผลที่สังเกตได้:** TabPFN-3.5 มี ROC-AUC/AP สูงกว่าและ log loss/Brier ต่ำกว่า CatBoost comparator ในทั้งสองคู่ เมื่อเพิ่ม context เป็น 4,000 แถว ROC-AUC ของ TabPFN-3.5 เพิ่มจาก 0.772835 เป็น 0.781629 ข้อสรุปนี้จำกัดอยู่ที่ configurations และ reference test ที่ใช้ ไม่ใช่การยืนยันว่า TabPFN ดีกว่า CatBoost ทุกกรณี
+
+การทดลอง TabPFN เป็น **การทดลองเพิ่มเติม (auxiliary experiment)** ไม่ใช้เปลี่ยนโมเดลหลักจากผล test การเปรียบเทียบกับ main pipeline มีขนาดข้อมูลและ features ต่างกัน เพราะ main pipeline ใช้ fit 16,500 แถวและ 68 engineered features
+
+Context 4,000 แถวรวม context 1,000 เดิมอยู่ภายใน ผลทั้งสองจึงเกี่ยวข้องกัน ไม่ใช่การทดลองซ้ำแบบอิสระสองชุด (independent replications)
+
+แหล่งตัวเลขใน Git: [TabPFN-3.5 / 1,000 แถว](reports/v1/tabpfn_v3_5_results.json), [TabPFN V2 และ CatBoost / 1,000 แถว](reports/v1/test_results.json), [ทั้งสองโมเดล / 4,000 แถว](reports/v2/tabpfn_4000_results.json) รายละเอียด settings, calibration และ runtime อยู่ใน [รายงาน TabPFN](docs/TABPFN_RESULTS_TH.md)
+
+## ผลโมเดลหลัก V2 และ V3
+
+V2 ใช้ CatBoost trajectory depth 6 ร่วมกับ LightGBM 15 leaves โดยให้น้ำหนัก 75% และ 25% ตามลำดับ รอบ V3 ทดลอง **nested cross-validation** เพื่อเลือก depth และจำนวน iterations ภายใน inner folds แล้วประเมินใน outer folds
+
+ตารางนี้เป็น **OOF (out-of-fold) predictions** ของ fit partition 16,500 แถว บน outer folds เดียวกัน:
+
+| Pipeline | ROC-AUC ↑ | AP ↑ | Log loss ↓ | Brier score ↓ | ผลการเลือก |
+|---|---:|---:|---:|---:|---|
+| V2 baseline | 0.784847 | 0.553305 | 0.427110 | 0.134286 | คงไว้เป็นโมเดลหลัก |
+| V3 candidate | 0.785682 | 0.557387 | 0.425785 | 0.133691 | ไม่ผ่าน promotion gate |
+
+V3 ให้ pooled log loss ดีขึ้น แต่หนึ่ง outer fold มี log loss แย่ลง จึงไม่ผ่านเกณฑ์ที่กำหนดก่อนรัน ไม่มีการเปลี่ยน gate ตามผลที่เห็น V2 และข้อมูลชุดนี้ผ่านการเลือกโมเดลมาแล้ว; nested CV รอบใหม่ไม่ทำให้ผลเป็น independent validation
+
+ผล V2 บน **reference test เดิม**: ROC-AUC 0.786933, AP 0.548343, log loss 0.426866 และ Brier score 0.134399 เป็นผลย้อนหลังบน cohort นี้ ยังไม่ยืนยันประสิทธิภาพบนธนาคารไทย
+
+หลักฐาน: [ผล V3 และ failure analysis](reports/v3/REPORT_TH.md), [protocol](reports/v3/protocol.json), [promotion gate](reports/v3/selection.json), [verification](reports/v3/verification.json), [ผล V2](reports/v2/REPORT_TH.md), [ผล V1](reports/v1/REPORT_TH.md)
+
+## Failure analysis และสิ่งที่ตรวจแล้ว
+
+สำรวจ fit partition เพิ่ม พบว่ากลุ่มไม่มี PAY code เป็นบวกยังมี default labels 11.83% ภายในกลุ่มนี้ ผู้ที่มียอดชำระเป็นศูนย์อย่างน้อย 3 monthly snapshots มี default labels 18.43% เทียบกับ 10.75% เมื่อมีน้อยกว่า 3 snapshots เป็นความสัมพันธ์ที่สังเกตได้ (association); ยังไม่ระบุสาเหตุของ default
+
+บน reference test ที่ review capacity 10% โมเดล V2 จัด default events เข้ากลุ่มตรวจได้ 312 ราย ส่วน V3 ได้ 307 ราย แม้ pooled metrics ของ V3 ดีขึ้นบางตัว จึงต้องตรวจ ranking, probability quality และผลในแต่ละกลุ่มแยกกัน ดู [research/EDA รอบสาม](research/ITERATION_3_RESEARCH_TH.md)
+
+โค้ดที่พัฒนาต่ออยู่ใน `src/creditrisk` แยก schema, features, splits, calibration, model selection และ scoring ตรวจแล้วว่า feature calculation ตรงกับ V2 ทุกเซลล์ของข้อมูล 30,000 แถว และผลทำนายหลัง refit/reload ตรงกับหลักฐานเดิม รักษา historical scripts และ reports ไว้ตาม source hashes
+
+agy ช่วย method/code review ผ่าน native CLI ใน plan mode โดยใช้หลักฐานที่ส่งให้ ข้อเสนอผ่านการตรวจซ้ำกับ source, tests และผลจริง ดู [review disposition](research/AGY_V3_REVIEW_DISPOSITION_TH.md) และ [architecture](docs/ARCHITECTURE.md)
+
+## ติดตั้งและทำซ้ำ
+
+ใช้ Python 3.12 รันจาก repository root ตัวอย่าง Windows PowerShell:
 
 ```powershell
 uv venv --python 3.12 .venv
@@ -39,28 +77,30 @@ uv pip install --python .venv\Scripts\python.exe -r requirements-core.txt -r req
 .venv\Scripts\python.exe tools/build_v3_report.py
 ```
 
-Run ใน checkout ที่ `outputs/experiment_v3` ยังไม่มี completed artifacts; commands ป้องกันการเขียนทับ protocol, selection และ reference evaluation การ rerun บนแถวเดิมไม่สร้าง independent test ใหม่
+ใช้ checkout ที่ยังไม่มี completed artifacts ใน `outputs/experiment_v3` คำสั่งป้องกันการเขียนทับ protocol, selection และผลประเมิน การทำซ้ำบนแถวเดิมยังเป็นการตรวจ cohort เดิม
 
-หลัง finalize แล้ว ใช้ pipeline ที่ gate เลือก:
+หลัง `finalize` จะมี selected pipeline สำหรับ scoring:
 
 ```powershell
 .venv\Scripts\python.exe -m creditrisk.cli score examples/borrower_input.csv --scores outputs/example_scores.csv
 ```
 
-Input ต้องเป็น 23 original predictors ไม่มี ID/target; ตัวอย่างเป็นข้อมูลสังเคราะห์ Output เป็น probability ของ **dataset label** พร้อมแถวต้นทาง ไม่ออกคำสั่งอนุมัติ/ปฏิเสธสินเชื่อ โหลดเฉพาะ joblib ที่สร้างเองหรือเชื่อถือได้
+Input ต้องมี 23 predictors ต้นฉบับโดยไม่มี ID/target; example เป็นข้อมูลสังเคราะห์ Output เป็น probability ของ dataset label พร้อม row reference ไฟล์โมเดลไม่รวมใน Git ต้องสร้าง local artifact ก่อนใช้ scoring และโหลดเฉพาะ joblib ที่เชื่อถือได้
 
-บน Linux/macOS ใช้ `.venv/bin/python` แทน `.venv\Scripts\python.exe`; package ไม่ hardcode host path
+บน Linux/macOS ใช้ `.venv/bin/python` แทน `.venv\Scripts\python.exe` รายละเอียดการทำซ้ำ auxiliary TabPFN อยู่ใน [รายงาน TabPFN](docs/TABPFN_RESULTS_TH.md)
 
-## Tech stack และการตรวจโค้ด
+## Tech stack และ quality checks
 
-| ส่วน | เครื่องมือที่ใช้จริง |
+| ส่วนงาน | เครื่องมือที่ใช้ |
 |---|---|
-| Data / deterministic features | Python 3.12, pandas, NumPy |
-| Main models | CatBoost, LightGBM บน CPU |
-| Splits / calibration / metrics | scikit-learn; exact-vector group folds, identity/sigmoid-on-logit/isotonic |
-| Artifacts / plots | versioned joblib pipeline, JSON/CSV/SHA-256, Matplotlib |
-| Quality / reproducibility | pytest, Ruff, GitHub Actions, core/dev version pins |
-| Agent review | native agy; LLM ไม่อยู่ใน numerical prediction path |
+| Data และ feature engineering | Python 3.12, pandas, NumPy |
+| Main pipeline | CatBoost, LightGBM บน CPU |
+| โมเดลอื่นที่เปรียบเทียบในรอบ V1 | EBM, Logistic Regression บน fit partition หลัก |
+| Auxiliary models บนข้อมูลย่อย | TabPFN-3.5, TabPFN V2 |
+| Cross-validation / calibration / metrics | scikit-learn; group folds, identity, sigmoid-on-logit, isotonic |
+| Artifacts และ plots | joblib, JSON/CSV, SHA-256, Matplotlib |
+| Tests / lint / CI | pytest, Ruff, GitHub Actions |
+| Agent review | native agy; numerical prediction คำนวณด้วย model pipeline |
 
 ```powershell
 .venv\Scripts\ruff.exe check src tests tools
@@ -68,14 +108,14 @@ Input ต้องเป็น 23 original predictors ไม่มี ID/target;
 .venv\Scripts\python.exe -m pytest -q
 ```
 
-[CONTRIBUTING](CONTRIBUTING.md) อธิบาย test boundaries และการรักษา frozen experiments ผล TabPFN/EBM/Logistic ในรอบก่อนเก็บไว้ใน reports; full legacy/TabPFN environment อยู่ใน `requirements.lock.txt` การทำซ้ำ TabPFN-3.5 ต้องมีสิทธิ์ใช้ weights/token และใส่ key เฉพาะ local `.env` ตาม `.env.example` main experiment รอบนี้ไม่ใช้ token
+Core dependencies อยู่ใน `requirements-core.txt`; full environment ของ historical experiments และ TabPFN อยู่ใน `requirements.lock.txt` การทำซ้ำ TabPFN-3.5 ต้องมีสิทธิ์เข้าถึง weights/token ใส่ key เฉพาะ local `.env` ตาม `.env.example` Main CatBoost/LightGBM pipeline ใช้ core environment โดยไม่ต้องมี token ดู [CONTRIBUTING](CONTRIBUTING.md) สำหรับขอบเขต tests และ frozen experiments
 
-## Dataset และขอบเขตหลักฐาน
+## Dataset และขอบเขตการใช้ผล
 
-I-Cheng Yeh (2009), [UCI Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients), [DOI 10.24432/C55S3H](https://doi.org/10.24432/C55S3H), CC BY 4.0; [Kaggle mirror](https://www.kaggle.com/datasets/uciml/default-of-credit-card-clients-dataset) เทียบทั้ง UCI CSV และต้นฉบับ XLS แล้วตรงทุกเซลล์ ดู [audit](reports/v1/data_audit.json)
+ข้อมูลต้นทาง: I-Cheng Yeh (2009), [UCI Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients), [DOI 10.24432/C55S3H](https://doi.org/10.24432/C55S3H), CC BY 4.0 เทียบ [Kaggle mirror](https://www.kaggle.com/datasets/uciml/default-of-credit-card-clients-dataset) กับ UCI CSV และ XLS แล้วค่าตรงทุกเซลล์ ดู [data audit](reports/v1/data_audit.json) และ [data provenance](data/README.md)
 
-Raw data, model weights, `.env` และ local agent logs ถูก exclude จาก Git Public reports รวม derived split/group/OOF data เพื่อทำซ้ำ paired experiment และรักษาการอ้าง UCI ต้นทาง metadata mirror ระบุ CC0 แต่ไม่ได้ใช้อนุมานสิทธิ์ relicense ต้นฉบับ
+Target ระบุ **next-month default payment** แต่ยังไม่ยืนยัน exact default threshold จึงใช้แทน regulatory 12-month PD ไม่ได้ ข้อมูลไม่มี fraud labels/transaction graph, LGD/EAD outcomes, rejected applicants หรือ independent temporal test ต้องใช้ labeled cohort ใหม่ที่ตรง population, target และ prediction time เพื่อประเมินการใช้งานธนาคาร ผลของโมเดลนี้ยังไม่ใช่ผลตรวจ fraud หรือการตัดสินอนุมัติสินเชื่อ
 
-Target header ระบุ next month แต่ exact default threshold ยังไม่ยืนยัน จึงไม่เท่ากับ regulatory 12-month PD; ไม่มี LGD/EAD/ECL model, rejected applicants หรือ genuine time holdout ข้อมูลที่มีไม่พออ้างสาเหตุของ default/ความเป็นธรรมของ underwriting ต้องใช้ labeled cohort ใหม่ที่ตรง population/target หลัง freeze pipeline จึงประเมิน independent validation ได้
+Raw data, model weights, credentials และ local agent logs ไม่รวมใน Git Public reports มี derived split/group/OOF data พร้อม attribution; exact-vector groups หมายถึงแถวที่มี predictors เหมือนกันทุกค่า ไม่ได้ยืนยัน borrower identity Metadata ของ Kaggle mirror ระบุ CC0 แต่โครงการคง attribution/license ต้นทาง UCI
 
-งานวิจัยเบื้องต้น: [approach/tech stack/BOT framework](research/CREDIT_RISK_REVIEW_TH.md), [dataset due diligence](research/DATASET_DUE_DILIGENCE_TH.md), [reference audit](research/REFERENCE_AUDIT.md)
+อ่านต่อ: [literature review และ BOT framework](research/CREDIT_RISK_REVIEW_TH.md), [dataset due diligence](research/DATASET_DUE_DILIGENCE_TH.md), [reference audit](research/REFERENCE_AUDIT.md), [Graph ML และขอบเขต event ธนาคาร](research/GRAPH_FRAUD_AND_BANK_EVENT_SCOPE_TH.md), [คำศัพท์ Thai–technical](docs/TERMINOLOGY_TH.md)
