@@ -1,0 +1,466 @@
+{
+  "selected_utc": "2026-10-05T07:28:09.137169+00:00",
+  "gate_passed": false,
+  "gate_checks": {
+    "minimum_gain": true,
+    "all_folds_improve": false,
+    "brier_not_worse": true,
+    "quiet_segment_not_materially_worse": true
+  },
+  "selected_pipeline": "v2_retained",
+  "log_loss_gain": 0.00132509029521094,
+  "candidate_oof": {
+    "roc_auc": 0.7856824276747942,
+    "average_precision": 0.5573866430801622,
+    "log_loss": 0.42578470305418514,
+    "brier": 0.13369088719340003
+  },
+  "baseline_v2_oof": {
+    "roc_auc": 0.7848470098041087,
+    "average_precision": 0.5533051278334704,
+    "log_loss": 0.4271097933493961,
+    "brier": 0.1342856247272196
+  },
+  "fold_log_loss_deltas": [
+    -0.002519661944897722,
+    0.0009276859407547078,
+    -0.002382668090965434
+  ],
+  "quiet_segment_log_loss_delta": 1.5938763934131295e-05,
+  "outer_search": [
+    {
+      "fold": 0,
+      "train_rows": 10999,
+      "hold_rows": 5501,
+      "search": {
+        "selected_config": {
+          "name": "depth6",
+          "depth": 6,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 20
+        },
+        "refit_iterations": 366,
+        "inner_search": [
+          {
+            "config": {
+              "name": "depth4",
+              "depth": 4,
+              "learning_rate": 0.03,
+              "l2_leaf_reg": 10
+            },
+            "folds": [
+              {
+                "fold": 0,
+                "train_rows": 7332,
+                "hold_rows": 3667,
+                "best_iterations": 434,
+                "metrics": {
+                  "roc_auc": 0.7802549503155147,
+                  "average_precision": 0.5636697017680695,
+                  "log_loss": 0.42709516618519244,
+                  "brier": 0.13383214460435885
+                },
+                "training_groups": 7318,
+                "heldout_groups": 3661,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 1,
+                "train_rows": 7332,
+                "hold_rows": 3667,
+                "best_iterations": 549,
+                "metrics": {
+                  "roc_auc": 0.7960224780417715,
+                  "average_precision": 0.5748834436009455,
+                  "log_loss": 0.4189038089192331,
+                  "brier": 0.13126548124818543
+                },
+                "training_groups": 7319,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 2,
+                "train_rows": 7334,
+                "hold_rows": 3665,
+                "best_iterations": 425,
+                "metrics": {
+                  "roc_auc": 0.7717839614278611,
+                  "average_precision": 0.5487549222135177,
+                  "log_loss": 0.4335537222661797,
+                  "brier": 0.13605128751929424
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3658,
+                "groups_disjoint": true
+              }
+            ],
+            "mean_inner_log_loss": 0.4265175657902018
+          },
+          {
+            "config": {
+              "name": "depth6",
+              "depth": 6,
+              "learning_rate": 0.03,
+              "l2_leaf_reg": 20
+            },
+            "folds": [
+              {
+                "fold": 0,
+                "train_rows": 7332,
+                "hold_rows": 3667,
+                "best_iterations": 668,
+                "metrics": {
+                  "roc_auc": 0.784511461798036,
+                  "average_precision": 0.5635447986509364,
+                  "log_loss": 0.42543004949658364,
+                  "brier": 0.13367680576108198
+                },
+                "training_groups": 7318,
+                "heldout_groups": 3661,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 1,
+                "train_rows": 7332,
+                "hold_rows": 3667,
+                "best_iterations": 366,
+                "metrics": {
+                  "roc_auc": 0.7947579154966549,
+                  "average_precision": 0.5757972283120968,
+                  "log_loss": 0.41969336744181096,
+                  "brier": 0.13165856147580465
+                },
+                "training_groups": 7319,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 2,
+                "train_rows": 7334,
+                "hold_rows": 3665,
+                "best_iterations": 279,
+                "metrics": {
+                  "roc_auc": 0.7725419990919115,
+                  "average_precision": 0.5523359920224833,
+                  "log_loss": 0.43264118888993097,
+                  "brier": 0.13577732132175524
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3658,
+                "groups_disjoint": true
+              }
+            ],
+            "mean_inner_log_loss": 0.42592153527610854
+          }
+        ],
+        "fit_rows": 10999,
+        "no_outer_eval_set": true
+      },
+      "metrics": {
+        "roc_auc": 0.7881233567105287,
+        "average_precision": 0.5566625749594571,
+        "log_loss": 0.42477285776175183,
+        "brier": 0.13322817150518687
+      },
+      "catboost_only_metrics": {
+        "roc_auc": 0.7885418752546212,
+        "average_precision": 0.5584936180818865,
+        "log_loss": 0.4244386256548295,
+        "brier": 0.13305054917339923
+      },
+      "outer_groups_disjoint": true,
+      "seconds": 500.0353580999654
+    },
+    {
+      "fold": 1,
+      "train_rows": 11001,
+      "hold_rows": 5499,
+      "search": {
+        "selected_config": {
+          "name": "depth6",
+          "depth": 6,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 20
+        },
+        "refit_iterations": 208,
+        "inner_search": [
+          {
+            "config": {
+              "name": "depth4",
+              "depth": 4,
+              "learning_rate": 0.03,
+              "l2_leaf_reg": 10
+            },
+            "folds": [
+              {
+                "fold": 0,
+                "train_rows": 7334,
+                "hold_rows": 3667,
+                "best_iterations": 285,
+                "metrics": {
+                  "roc_auc": 0.7835273135148018,
+                  "average_precision": 0.5627861671084109,
+                  "log_loss": 0.424026244224614,
+                  "brier": 0.13215417838342794
+                },
+                "training_groups": 7320,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 1,
+                "train_rows": 7334,
+                "hold_rows": 3667,
+                "best_iterations": 329,
+                "metrics": {
+                  "roc_auc": 0.7654236478808539,
+                  "average_precision": 0.5313843053474778,
+                  "log_loss": 0.44085615041698084,
+                  "brier": 0.13905178283240435
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3659,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 2,
+                "train_rows": 7334,
+                "hold_rows": 3667,
+                "best_iterations": 212,
+                "metrics": {
+                  "roc_auc": 0.7761776103783068,
+                  "average_precision": 0.550277763010528,
+                  "log_loss": 0.43258810404036013,
+                  "brier": 0.1358216886754444
+                },
+                "training_groups": 7319,
+                "heldout_groups": 3661,
+                "groups_disjoint": true
+              }
+            ],
+            "mean_inner_log_loss": 0.43249016622731834
+          },
+          {
+            "config": {
+              "name": "depth6",
+              "depth": 6,
+              "learning_rate": 0.03,
+              "l2_leaf_reg": 20
+            },
+            "folds": [
+              {
+                "fold": 0,
+                "train_rows": 7334,
+                "hold_rows": 3667,
+                "best_iterations": 287,
+                "metrics": {
+                  "roc_auc": 0.7838595364162928,
+                  "average_precision": 0.5633520398182876,
+                  "log_loss": 0.4236505994534432,
+                  "brier": 0.13202422931467309
+                },
+                "training_groups": 7320,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 1,
+                "train_rows": 7334,
+                "hold_rows": 3667,
+                "best_iterations": 150,
+                "metrics": {
+                  "roc_auc": 0.7660023935591499,
+                  "average_precision": 0.5305314805525722,
+                  "log_loss": 0.4409349771658293,
+                  "brier": 0.13903554330743131
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3659,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 2,
+                "train_rows": 7334,
+                "hold_rows": 3667,
+                "best_iterations": 208,
+                "metrics": {
+                  "roc_auc": 0.7756636254995216,
+                  "average_precision": 0.5486444428456754,
+                  "log_loss": 0.43265198741661376,
+                  "brier": 0.1359824825553042
+                },
+                "training_groups": 7319,
+                "heldout_groups": 3661,
+                "groups_disjoint": true
+              }
+            ],
+            "mean_inner_log_loss": 0.4324125213452954
+          }
+        ],
+        "fit_rows": 11001,
+        "no_outer_eval_set": true
+      },
+      "metrics": {
+        "roc_auc": 0.7973226656487705,
+        "average_precision": 0.5770660349508687,
+        "log_loss": 0.4180557581989523,
+        "brier": 0.13091533502754588
+      },
+      "catboost_only_metrics": {
+        "roc_auc": 0.7962598077466606,
+        "average_precision": 0.5770671833753765,
+        "log_loss": 0.41910515410329546,
+        "brier": 0.1310995051204151
+      },
+      "outer_groups_disjoint": true,
+      "seconds": 302.1683389999671
+    },
+    {
+      "fold": 2,
+      "train_rows": 11000,
+      "hold_rows": 5500,
+      "search": {
+        "selected_config": {
+          "name": "depth6",
+          "depth": 6,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 20
+        },
+        "refit_iterations": 329,
+        "inner_search": [
+          {
+            "config": {
+              "name": "depth4",
+              "depth": 4,
+              "learning_rate": 0.03,
+              "l2_leaf_reg": 10
+            },
+            "folds": [
+              {
+                "fold": 0,
+                "train_rows": 7334,
+                "hold_rows": 3666,
+                "best_iterations": 362,
+                "metrics": {
+                  "roc_auc": 0.8006515058920577,
+                  "average_precision": 0.5895031517242395,
+                  "log_loss": 0.4127259397265205,
+                  "brier": 0.12832494130869293
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 1,
+                "train_rows": 7333,
+                "hold_rows": 3667,
+                "best_iterations": 485,
+                "metrics": {
+                  "roc_auc": 0.7810871265892301,
+                  "average_precision": 0.553781716185219,
+                  "log_loss": 0.43063357053206075,
+                  "brier": 0.1356246079418678
+                },
+                "training_groups": 7320,
+                "heldout_groups": 3661,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 2,
+                "train_rows": 7333,
+                "hold_rows": 3667,
+                "best_iterations": 521,
+                "metrics": {
+                  "roc_auc": 0.7957649459290497,
+                  "average_precision": 0.55594081545782,
+                  "log_loss": 0.42180609721810913,
+                  "brier": 0.1323093045659843
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              }
+            ],
+            "mean_inner_log_loss": 0.4217218691588968
+          },
+          {
+            "config": {
+              "name": "depth6",
+              "depth": 6,
+              "learning_rate": 0.03,
+              "l2_leaf_reg": 20
+            },
+            "folds": [
+              {
+                "fold": 0,
+                "train_rows": 7334,
+                "hold_rows": 3666,
+                "best_iterations": 329,
+                "metrics": {
+                  "roc_auc": 0.8034138735987872,
+                  "average_precision": 0.5923982610999196,
+                  "log_loss": 0.41076549236203574,
+                  "brier": 0.12775245107120528
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 1,
+                "train_rows": 7333,
+                "hold_rows": 3667,
+                "best_iterations": 277,
+                "metrics": {
+                  "roc_auc": 0.7794801952840323,
+                  "average_precision": 0.550247683392047,
+                  "log_loss": 0.43069186716915364,
+                  "brier": 0.13549624341933822
+                },
+                "training_groups": 7320,
+                "heldout_groups": 3661,
+                "groups_disjoint": true
+              },
+              {
+                "fold": 2,
+                "train_rows": 7333,
+                "hold_rows": 3667,
+                "best_iterations": 438,
+                "metrics": {
+                  "roc_auc": 0.7982265039184601,
+                  "average_precision": 0.5572624666992385,
+                  "log_loss": 0.42085847884443994,
+                  "brier": 0.132235128828603
+                },
+                "training_groups": 7321,
+                "heldout_groups": 3660,
+                "groups_disjoint": true
+              }
+            ],
+            "mean_inner_log_loss": 0.4207719461252098
+          }
+        ],
+        "fit_rows": 11000,
+        "no_outer_eval_set": true
+      },
+      "metrics": {
+        "roc_auc": 0.7733473734888692,
+        "average_precision": 0.5460117478572732,
+        "log_loss": 0.4345242719110215,
+        "brier": 0.13692873453174403
+      },
+      "catboost_only_metrics": {
+        "roc_auc": 0.7728037349808343,
+        "average_precision": 0.545018916932901,
+        "log_loss": 0.43469663372215483,
+        "brier": 0.13690721071637607
+      },
+      "outer_groups_disjoint": true,
+      "seconds": 426.9342533000745
+    }
+  ],
+  "protocol_sha256": "31244f7a4c4e1b3bf55875eb66bec1d068704521177a6e7924d2d5d8e2671d72",
+  "interpretation": "Nested search keeps outer labels outside current training selection. Previous data/feature/model selection and promotion remain adaptive; descriptive within-cohort evidence only."
+}

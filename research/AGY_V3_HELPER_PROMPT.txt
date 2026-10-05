@@ -1,0 +1,388 @@
+Read-only review of supplied COMPLETE helper modules only. NO TOOLS, no file access, shell, network or edits. Previous excerpt review asserted logit was1D/unclipped, fitted.predict returned class labels, group_folds was a generator, make_features may leak target, and inner disjointness was not checked. Verify each assertion against full definitions below and correct any unsupported finding; do not repeat guesses. Component LightGBM categories are provided by fit_lightgbm with the training category dictionary; an empty dictionary would be invalid construction, not the executed experiment. List only demonstrable remaining issues and distinguish prospective robustness changes from observed failures. Thai response.
+
+
+FILE src/creditrisk/calibration.py
+"""Calibration selection uses only a designated group-disjoint calibration partition."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+from sklearn.isotonic import IsotonicRegression
+from sklearn.linear_model import LogisticRegression
+
+from .metrics import EPSILON, probability_metrics, valid_probabilities
+from .splits import group_folds
+
+
+def logit(probability) -> np.ndarray:
+    clipped = np.clip(valid_probabilities(probability), EPSILON, 1 - EPSILON)
+    return np.log(clipped / (1 - clipped)).reshape(-1, 1)
+
+
+@dataclass
+class Calibrator:
+    kind: str = "identity"
+    estimator: object | None = None
+
+    def predict(self, probability) -> np.ndarray:
+        raw = valid_probabilities(probability)
+        if self.kind == "identity":
+            result = raw
+        elif self.kind == "sigmoid":
+            result = self.estimator.predict_proba(logit(raw))[:, 1]
+        elif self.kind == "isotonic":
+            result = self.estimator.predict(raw)
+        else:
+            raise ValueError(f"Unsupported calibrator: {self.kind}")
+        return valid_probabilities(result, size=len(raw))
+
+
+def fit_calibrator(kind: str, probability, target) -> Calibrator:
+    if kind == "identity":
+        return Calibrator()
+    if kind == "sigmoid":
+        estimator = LogisticRegression(C=1e6, max_iter=1000).fit(logit(probability), target)
+    elif kind == "isotonic":
+        estimator = IsotonicRegression(out_of_bounds="clip").fit(probability, target)
+    else:
+        raise ValueError(f"Unsupported calibrator: {kind}")
+    return Calibrator(kind, estimator)
+
+
+def select_calibrator(probability, target, groups, *, seed: int) -> tuple[Calibrator, dict]:
+    raw = valid_probabilities(probability, size=len(target))
+    target = np.asarray(target)
+    folds = group_folds(target, groups, count=5, seed=seed)
+    scores = {}
+    for kind in ("identity", "sigmoid", "isotonic"):
+        oof = np.empty(len(target))
+        for train, hold in folds:
+            fitted = fit_calibrator(kind, raw[train], target[train])
+            oof[hold] = fitted.predict(raw[hold])
+        scores[kind] = probability_metrics(target, oof)["log_loss"]
+    selected = min(scores, key=scores.get)
+    return fit_calibrator(selected, raw, target), scores
+
+
+FILE src/creditrisk/metrics.py
+"""Probability quality and failure diagnostics; no silent invalid-probability repair."""
+
+from __future__ import annotations
+
+import numpy as np
+from sklearn.metrics import average_precision_score, brier_score_loss, log_loss, roc_auc_score
+
+EPSILON = 1e-7  # Preserves the legacy metric convention for paired comparisons.
+
+
+def valid_probabilities(values, *, size: int | None = None) -> np.ndarray:
+    probability = np.asarray(values, dtype=float)
+    if probability.ndim != 1 or (size is not None and len(probability) != size):
+        raise ValueError("Probability must be a one-dimensional array matching row count.")
+    if not np.isfinite(probability).all() or ((probability < 0) | (probability > 1)).any():
+        raise ValueError("Probabilities must be finite and in [0, 1].")
+    return probability
+
+
+def probability_metrics(target, probability) -> dict[str, float | None]:
+    target = np.asarray(target)
+    if target.ndim != 1 or not np.isin(target, [0, 1]).all() or len(target) == 0:
+        raise ValueError("Target must be a nonempty binary vector.")
+    raw = valid_probabilities(probability, size=len(target))
+    clipped = np.clip(raw, EPSILON, 1 - EPSILON)
+    both_classes = len(np.unique(target)) == 2
+    return {
+        "roc_auc": float(roc_auc_score(target, clipped)) if both_classes else None,
+        "average_precision": float(average_precision_score(target, clipped))
+        if both_classes
+        else None,
+        "log_loss": float(log_loss(target, clipped, labels=[0, 1])),
+        "brier": float(brier_score_loss(target, clipped)),
+    }
+
+
+def confusion(target, probability, threshold: float = 0.5) -> dict[str, int | float]:
+    target = np.asarray(target, dtype=int)
+    p = valid_probabilities(probability, size=len(target))
+    flagged = p >= threshold
+    tp = int(((target == 1) & flagged).sum())
+    fp = int(((target == 0) & flagged).sum())
+    fn = int(((target == 1) & ~flagged).sum())
+    tn = int(((target == 0) & ~flagged).sum())
+    return {
+        "threshold": threshold,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "tn": tn,
+        "recall": tp / (tp + fn) if tp + fn else 0.0,
+        "precision": tp / (tp + fp) if tp + fp else 0.0,
+        "flagged_rate": float(flagged.mean()),
+    }
+
+
+def capacity_counts(target, probability, capacities=(0.1, 0.2, 0.3, 0.4, 0.5)) -> list[dict]:
+    target = np.asarray(target, dtype=int)
+    p = valid_probabilities(probability, size=len(target))
+    order = np.argsort(-p, kind="stable")
+    rows = []
+    for capacity in capacities:
+        count = int(np.ceil(len(target) * capacity))
+        captured = int(target[order[:count]].sum())
+        rows.append(
+            {
+                "capacity": capacity,
+                "flagged_rows": count,
+                "events_captured": captured,
+                "precision": captured / count,
+                "recall": captured / int(target.sum()) if target.sum() else 0.0,
+            }
+        )
+    return rows
+
+
+FILE src/creditrisk/splits.py
+"""Validate exact-vector grouping and deterministic group-aware splits."""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import StratifiedGroupKFold
+
+from .schema import PREDICTORS
+
+
+def predictor_groups(rows: pd.DataFrame) -> np.ndarray:
+    predictors = rows.loc[:, PREDICTORS]
+    hashes = pd.util.hash_pandas_object(predictors, index=False).to_numpy().astype(str)
+    if len(np.unique(hashes)) != len(predictors.drop_duplicates()):
+        raise ValueError("Predictor-vector hash collision detected.")
+    return hashes
+
+
+def disjoint_groups(groups, train, hold) -> None:
+    groups = np.asarray(groups)
+    if np.intersect1d(groups[train], groups[hold]).size:
+        raise ValueError("Identical predictor groups cross a training/held-out boundary.")
+
+
+def group_folds(target, groups, *, count: int, seed: int) -> list[tuple[np.ndarray, np.ndarray]]:
+    target, groups = np.asarray(target), np.asarray(groups)
+    folds = list(
+        StratifiedGroupKFold(n_splits=count, shuffle=True, random_state=seed).split(
+            np.zeros(len(target)), target, groups
+        )
+    )
+    for train, hold in folds:
+        disjoint_groups(groups, train, hold)
+        if len(np.unique(target[train])) != 2 or len(np.unique(target[hold])) != 2:
+            raise ValueError("Every training and held-out fold must contain both classes.")
+    return folds
+
+
+def validate_assignment(rows: pd.DataFrame, assignment: pd.DataFrame) -> None:
+    if not np.array_equal(rows.ID, assignment.ID):
+        raise ValueError("Data and split assignment IDs/order differ.")
+    if not np.array_equal(predictor_groups(rows), assignment.group.astype(str)):
+        raise ValueError("Split groups differ from actual predictor vectors.")
+    if assignment.groupby("group").original_partition.nunique().max() != 1:
+        raise ValueError("A predictor group crosses original partitions.")
+    fit = assignment.original_partition == "fit"
+    if assignment.loc[fit].groupby("group").cv_fold.nunique().max() != 1:
+        raise ValueError("A predictor group crosses outer CV folds.")
+
+
+FILE src/creditrisk/features.py
+"""Pure within-row summaries, numerically compatible with the frozen V2 recipe."""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+
+from .schema import BILLS, CATEGORIES, DEMOGRAPHICS, PAY_CODES, PAYMENTS, PREDICTORS
+
+
+def make_features(rows: pd.DataFrame, variant: str = "trajectory") -> pd.DataFrame:
+    if variant not in {"raw", "behavior", "trajectory", "trajectory_no_demographics"}:
+        raise ValueError(f"Unknown feature variant: {variant}")
+    features = rows.loc[:, PREDICTORS].copy()
+    for column in CATEGORIES:
+        features[column] = features[column].astype(int).astype(str)
+    if variant == "raw":
+        return features
+
+    limit = rows.LIMIT_BAL.where(rows.LIMIT_BAL > 0)
+    for month in range(1, 7):
+        bill = rows[f"BILL_AMT{month}"]
+        features[f"payment_bill_ratio_{month}"] = rows[f"PAY_AMT{month}"] / bill.where(bill > 0)
+        features[f"nonpositive_bill_{month}"] = (bill <= 0).astype(int)
+    features["recent_bill_utilization"] = rows.BILL_AMT1 / limit
+    features["bill_change_1_6"] = rows.BILL_AMT1 - rows.BILL_AMT6
+    if variant == "behavior":
+        return features
+
+    codes = rows.loc[:, PAY_CODES].to_numpy(dtype=float)
+    positive = np.maximum(codes, 0)
+    # A zero contribution does not assign a meaning to negative/zero category codes.
+    features["positive_code_count"] = (codes > 0).sum(axis=1)
+    features["code_ge2_count"] = (codes >= 2).sum(axis=1)
+    features["max_positive_code"] = positive.max(axis=1)
+    features["mean_positive_code"] = positive.mean(axis=1)
+    features["latest_positive_minus_prior_mean"] = positive[:, 0] - positive[:, 1:].mean(axis=1)
+    features["latest_positive_minus_prior_max"] = positive[:, 0] - positive[:, 1:].max(axis=1)
+    features["adjacent_positive_pairs"] = ((codes[:, :-1] > 0) & (codes[:, 1:] > 0)).sum(axis=1)
+    features["recent_positive_code_count"] = (codes[:, :3] > 0).sum(axis=1)
+
+    bills = rows.loc[:, BILLS].to_numpy(dtype=float)
+    payments = rows.loc[:, PAYMENTS].to_numpy(dtype=float)
+    for month in range(1, 7):
+        features[f"bill_limit_ratio_{month}"] = rows[f"BILL_AMT{month}"] / limit
+        features[f"payment_limit_ratio_{month}"] = rows[f"PAY_AMT{month}"] / limit
+    features["zero_payment_count"] = (payments == 0).sum(axis=1)
+    features["recent_zero_payment_count"] = (payments[:, :3] == 0).sum(axis=1)
+    features["negative_bill_count"] = (bills < 0).sum(axis=1)
+    features["bill_std_limit"] = bills.std(axis=1) / limit
+    features["bill_range_limit"] = (bills.max(axis=1) - bills.min(axis=1)) / limit
+    features["payment_std_limit"] = payments.std(axis=1) / limit
+    features["payment_mean_limit"] = payments.mean(axis=1) / limit
+    time = np.arange(6, dtype=float)
+    time -= time.mean()
+    features["bill_slope_limit"] = (bills[:, ::-1] @ time) / (time @ time) / limit
+    features["payment_slope_limit"] = (payments[:, ::-1] @ time) / (time @ time) / limit
+    features["recent_bill_change_limit"] = (bills[:, 0] - bills[:, 2]) / limit
+    denominator = np.maximum(bills, 0).sum(axis=1)
+    features["sum_payment_over_sum_positive_bill"] = np.divide(
+        payments.sum(axis=1),
+        denominator,
+        out=np.full(len(rows), np.nan),
+        where=denominator > 0,
+    )
+    # bill_limit_ratio_1 intentionally duplicates recent_bill_utilization for V2 parity.
+    if variant == "trajectory_no_demographics":
+        return features.drop(columns=list(DEMOGRAPHICS))
+    return features
+
+
+FILE src/creditrisk/models.py
+"""Model adapters centralize categorical handling and inference contracts."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+import numpy as np
+import pandas as pd
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+
+from .calibration import Calibrator
+from .features import make_features
+from .metrics import valid_probabilities
+from .schema import CATEGORIES, TARGET, validate_predictors
+
+
+def catboost_model(config: dict, *, iterations: int, seed: int, threads: int):
+    return CatBoostClassifier(
+        depth=config["depth"],
+        l2_leaf_reg=config["l2_leaf_reg"],
+        iterations=iterations,
+        learning_rate=config["learning_rate"],
+        loss_function="Logloss",
+        eval_metric="Logloss",
+        cat_features=list(CATEGORIES),
+        random_seed=seed,
+        thread_count=threads,
+        verbose=False,
+        allow_writing_files=False,
+    )
+
+
+def lightgbm_model(*, seed: int, threads: int):
+    return LGBMClassifier(
+        num_leaves=15,
+        n_estimators=700,
+        learning_rate=0.025,
+        min_child_samples=100,
+        reg_lambda=10.0,
+        colsample_bytree=0.9,
+        random_state=seed,
+        n_jobs=threads,
+        verbosity=-1,
+    )
+
+
+def categorical_input(features: pd.DataFrame, categories: dict | None = None) -> pd.DataFrame:
+    result = features.copy()
+    for column in CATEGORIES:
+        if column not in features:
+            continue
+        if categories is None:
+            result[column] = pd.Categorical(features[column])
+        else:
+            values = features[column].where(features[column].isin(categories[column]), np.nan)
+            result[column] = pd.Categorical(values, categories=categories[column])
+    return result
+
+
+@dataclass
+class Component:
+    family: str
+    estimator: object
+    columns: list[str]
+    variant: str = "trajectory"
+    categories: dict = field(default_factory=dict)
+
+    def predict(self, features: pd.DataFrame) -> np.ndarray:
+        x = features.loc[:, self.columns]
+        if self.family == "lightgbm":
+            x = categorical_input(x, self.categories)
+        elif self.family != "catboost":
+            raise ValueError(f"Unsupported model family: {self.family}")
+        return valid_probabilities(self.estimator.predict_proba(x)[:, 1], size=len(x))
+
+
+@dataclass
+class CreditPipeline:
+    components: list[Component]
+    weights: list[float]
+    calibrator: Calibrator = field(default_factory=Calibrator)
+    version: str = "development"
+    schema_version: int = 1
+
+    def predict(self, rows: pd.DataFrame) -> pd.DataFrame:
+        if self.schema_version != 1:
+            raise ValueError("Unsupported pipeline schema version.")
+        if not self.components or len(self.components) != len(self.weights):
+            raise ValueError("Pipeline requires one weight per component.")
+        weights = np.asarray(self.weights, dtype=float)
+        if (
+            not np.isfinite(weights).all()
+            or (weights < 0).any()
+            or not np.isclose(weights.sum(), 1)
+        ):
+            raise ValueError("Pipeline weights must be nonnegative and sum to one.")
+        clean = validate_predictors(rows)
+        variants = {
+            item.variant for item, weight in zip(self.components, weights, strict=True) if weight
+        }
+        features = {variant: make_features(clean, variant) for variant in variants}
+        raw = np.zeros(len(clean))
+        for item, weight in zip(self.components, weights, strict=True):
+            if weight:
+                raw += weight * item.predict(features[item.variant])
+        raw = valid_probabilities(raw, size=len(clean))
+        return pd.DataFrame(
+            {
+                "input_row_position": np.arange(len(clean)),
+                "model_version": self.version,
+                "raw_probability": raw,
+                "calibrated_probability": self.calibrator.predict(raw),
+                "target": TARGET,
+                "purpose": "Development research; no lending decision",
+            },
+            index=rows.index,
+        )

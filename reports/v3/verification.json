@@ -1,0 +1,44 @@
+{
+  "verified_utc": "2026-10-05T07:39:51.941084+00:00",
+  "protocol_hashes_match": true,
+  "selection_sha256": "cdf4a0a8d533c5a77a106c7c615646bd31e8fcd2c9b1432694a92f18d162c6b9",
+  "prediction_ids_order_match": true,
+  "recomputed_metrics_match": true,
+  "clean_v2_refit_parity": [
+    {
+      "partition": "validation",
+      "metrics_match": true,
+      "maximum_prediction_difference": 0.0
+    },
+    {
+      "partition": "test",
+      "metrics_match": true,
+      "maximum_prediction_difference": 0.0
+    }
+  ],
+  "batch_single_row_nonunique_index_parity": true,
+  "selected_saved_model_reference_parity": true,
+  "feature_migration": {
+    "checks": [
+      {
+        "variant": "behavior",
+        "rows": 30000,
+        "columns": 37,
+        "exact_parity": true
+      },
+      {
+        "variant": "trajectory",
+        "rows": 30000,
+        "columns": 68,
+        "exact_parity": true
+      },
+      {
+        "variant": "trajectory_no_demographics",
+        "rows": 30000,
+        "columns": 64,
+        "exact_parity": true
+      }
+    ]
+  },
+  "no_new_holdout": true
+}

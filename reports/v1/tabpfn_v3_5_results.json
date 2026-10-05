@@ -1,0 +1,47 @@
+{
+  "results": [
+    {
+      "roc_auc": 0.772835217456756,
+      "average_precision": 0.5253996973832442,
+      "log_loss": 0.43485453853763845,
+      "brier": 0.1365129030513781,
+      "model": "aux_tabpfn_v3.5__raw",
+      "track": "auxiliary_1000_fit",
+      "gini": 0.545670434913512,
+      "calibration_intercept": -0.007153715535741553,
+      "calibration_slope": 1.0391837893708142
+    },
+    {
+      "roc_auc": 0.772835217456756,
+      "average_precision": 0.5253996973832442,
+      "log_loss": 0.43485453853763845,
+      "brier": 0.1365129030513781,
+      "model": "aux_tabpfn_v3.5",
+      "track": "auxiliary_1000_fit",
+      "gini": 0.545670434913512,
+      "calibration_intercept": -0.007153715535741553,
+      "calibration_slope": 1.0391837893708142
+    }
+  ],
+  "same_locked_subset_and_test": true,
+  "main_champion_unchanged": "catboost_behavior",
+  "scope": "Predeclared auxiliary model, access delayed; no retuning after main test results",
+  "verification": {
+    "actual_version": "v3.5",
+    "trial_status": "ok",
+    "test_rows": 4500,
+    "test_events": 995,
+    "same_test_ids_and_order": true,
+    "unique_test_ids": true,
+    "finite_probability_in_unit_interval": true
+  },
+  "artifact_sha256": {
+    "protocol.json": "2c04f4317796beef8eb53a7c84c8d24830cbb6e6a8639fd646656ee4434d8bbf",
+    "tabpfn_cpu_subset.json": "8654360fd79e4285159befb3091491478be93759f55dcaa84120d6b933332c53",
+    "splits.csv": "8e2f2eb455404c5b822664ecfcf31afe134cfc056cac1caf5761035968b682f9",
+    "tabpfn_v3_5_test_predictions.csv": "351e4ac03b23de587ddcb18cad55115bb17b564446b3c0b7a9fbc9922f478a0b",
+    "tabpfn_v3_5_trial.json": "f683aca71c1b00deed4afe59dd0a9e471df36568bce035bff8be5a97f1adf23e",
+    "selection.json": "e264224402aa3bc67d16e27b2f729ea0bb1c50ec84ae26cdc761f37da8feb072",
+    "test_results.json": "d2667a6f7dcc2589de927697d3de42ec925a5d39de8ba3f0e48aae937c383072"
+  }
+}

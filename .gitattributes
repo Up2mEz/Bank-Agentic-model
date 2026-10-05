@@ -1,0 +1,9 @@
+* text=auto
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.png binary
+# Preserve byte-level provenance of frozen historical source and published evidence.
+scripts/** -text
+reports/** -text

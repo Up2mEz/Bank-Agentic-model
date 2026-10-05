@@ -1,0 +1,8 @@
+{
+  "rows": 30000,
+  "columns": 25,
+  "uci_csv_value_mismatches": 0,
+  "original_xls_value_mismatches": 0,
+  "mirror_sha256": "a0f0ab49d6326671d6cd83be5c88dcf18007025fe9a53ecd699119c871176ca1",
+  "scope": "Current cached original XLS, UCI CSV and Kaggle mirror compared again; not a new cohort"
+}

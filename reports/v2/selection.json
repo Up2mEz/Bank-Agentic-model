@@ -1,0 +1,595 @@
+{
+  "best_catboost": "trajectory_d6",
+  "best_lightgbm": "lightgbm_trajectory_15",
+  "blend_catboost_weight": 0.75,
+  "blend_grid": [
+    {
+      "catboost_weight": 0.0,
+      "metrics": {
+        "roc_auc": 0.7797621894761553,
+        "average_precision": 0.5445491074322346,
+        "log_loss": 0.4319425682785108,
+        "brier": 0.13583020485391242
+      }
+    },
+    {
+      "catboost_weight": 0.25,
+      "metrics": {
+        "roc_auc": 0.7822253985585446,
+        "average_precision": 0.5490697713602858,
+        "log_loss": 0.4294752166916656,
+        "brier": 0.13505693036376226
+      }
+    },
+    {
+      "catboost_weight": 0.5,
+      "metrics": {
+        "roc_auc": 0.7839465186699703,
+        "average_precision": 0.5518370221868888,
+        "log_loss": 0.4278809590185682,
+        "brier": 0.13454207032153132
+      }
+    },
+    {
+      "catboost_weight": 0.75,
+      "metrics": {
+        "roc_auc": 0.7848470098041087,
+        "average_precision": 0.5533051278334704,
+        "log_loss": 0.4271097933493961,
+        "brier": 0.1342856247272196
+      }
+    },
+    {
+      "catboost_weight": 1.0,
+      "metrics": {
+        "roc_auc": 0.7848912591967565,
+        "average_precision": 0.5529650705531763,
+        "log_loss": 0.42716487140342807,
+        "brier": 0.1342875935808271
+      }
+    }
+  ],
+  "candidate_oof": {
+    "roc_auc": 0.7848470098041087,
+    "average_precision": 0.5533051278334704,
+    "log_loss": 0.4271097933493961,
+    "brier": 0.1342856247272196
+  },
+  "reference_oof": {
+    "roc_auc": 0.7817852717080109,
+    "average_precision": 0.5499186170640974,
+    "log_loss": 0.4289548786131917,
+    "brier": 0.13471289628488392
+  },
+  "fold_log_loss_deltas": [
+    -0.0020158643910122565,
+    -0.0024899104160041596,
+    -0.001029567174556767
+  ],
+  "promotion_gate_passed": true,
+  "improvement_oof_log_loss": 0.0018450852637956205,
+  "selected_pipeline": "blend",
+  "basis": "OOF only; old validation/test not used to choose from this grid",
+  "selected_utc": "2026-10-04T14:03:12.863130+00:00",
+  "summaries": {
+    "reference_v1": {
+      "name": "reference_v1",
+      "config": {
+        "name": "reference_v1",
+        "family": "catboost",
+        "variant": "behavior",
+        "params": {
+          "depth": 4,
+          "iterations": 600,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 5
+        }
+      },
+      "feature_count": 37,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 58.797474499908276,
+          "roc_auc": 0.7843191919331414,
+          "average_precision": 0.5443921525396875,
+          "log_loss": 0.4293083840976618,
+          "brier": 0.13474661349187805
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 63.784292299998924,
+          "roc_auc": 0.7929891508042813,
+          "average_precision": 0.571821319554809,
+          "log_loss": 0.41961798267420175,
+          "brier": 0.13141341502267712
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 79.92028690001462,
+          "roc_auc": 0.7688687865497076,
+          "average_precision": 0.5371543041425845,
+          "log_loss": 0.4379365071765437,
+          "brier": 0.13797805430401128
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7817852717080109,
+        "average_precision": 0.5499186170640974,
+        "log_loss": 0.4289548786131917,
+        "brier": 0.13471289628488392
+      },
+      "mean_fold_log_loss": 0.42895429131613577
+    },
+    "trajectory_fixed": {
+      "name": "trajectory_fixed",
+      "config": {
+        "name": "trajectory_fixed",
+        "family": "catboost",
+        "variant": "trajectory",
+        "params": {
+          "depth": 4,
+          "iterations": 600,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 5
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 60.06030249991454,
+          "roc_auc": 0.7847258185662652,
+          "average_precision": 0.548871110667439,
+          "log_loss": 0.42865055735823426,
+          "brier": 0.13436073061569206
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 66.44707360002212,
+          "roc_auc": 0.7958611040281652,
+          "average_precision": 0.5750964628991297,
+          "log_loss": 0.41783491597394107,
+          "brier": 0.1309439043976079
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 82.80787769996095,
+          "roc_auc": 0.7712128436901077,
+          "average_precision": 0.5425036530403837,
+          "log_loss": 0.43695660128601943,
+          "brier": 0.1378803120851924
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7834781468456719,
+        "average_precision": 0.553364622841183,
+        "log_loss": 0.42781468036614884,
+        "brier": 0.134395189446541
+      },
+      "mean_fold_log_loss": 0.42781402487273157
+    },
+    "trajectory_d4_long": {
+      "name": "trajectory_d4_long",
+      "config": {
+        "name": "trajectory_d4_long",
+        "family": "catboost",
+        "variant": "trajectory",
+        "params": {
+          "depth": 4,
+          "iterations": 1200,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 10
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 185.8291597000789,
+          "roc_auc": 0.7853671186360056,
+          "average_precision": 0.5497477203749721,
+          "log_loss": 0.42793717082634625,
+          "brier": 0.13414948283155534
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 173.39159300003666,
+          "roc_auc": 0.7976330458852009,
+          "average_precision": 0.5752804040139168,
+          "log_loss": 0.4170706642354956,
+          "brier": 0.13077267988395083
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 163.39049790007994,
+          "roc_auc": 0.7711491120571035,
+          "average_precision": 0.5411122122560754,
+          "log_loss": 0.43668356605443875,
+          "brier": 0.1376994547721399
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7842975176474575,
+        "average_precision": 0.5536972706577495,
+        "log_loss": 0.4272311256149172,
+        "brier": 0.13420741048393947
+      },
+      "mean_fold_log_loss": 0.42723046703876016
+    },
+    "trajectory_d5": {
+      "name": "trajectory_d5",
+      "config": {
+        "name": "trajectory_d5",
+        "family": "catboost",
+        "variant": "trajectory",
+        "params": {
+          "depth": 5,
+          "iterations": 1000,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 10
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 192.2295839000726,
+          "roc_auc": 0.7834532881901048,
+          "average_precision": 0.5502185354273346,
+          "log_loss": 0.42845992793027665,
+          "brier": 0.13417442176320468
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 183.2616070000222,
+          "roc_auc": 0.7971650274340416,
+          "average_precision": 0.5747634684023363,
+          "log_loss": 0.4170576079079851,
+          "brier": 0.13069566362413979
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 168.97974930005148,
+          "roc_auc": 0.7720916491596639,
+          "average_precision": 0.5421625014932066,
+          "log_loss": 0.4365668361581906,
+          "brier": 0.13771215099266637
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7837970516853592,
+        "average_precision": 0.553921494975115,
+        "log_loss": 0.4273621483818491,
+        "brier": 0.13419428962716354
+      },
+      "mean_fold_log_loss": 0.42736145733215075
+    },
+    "trajectory_d6": {
+      "name": "trajectory_d6",
+      "config": {
+        "name": "trajectory_d6",
+        "family": "catboost",
+        "variant": "trajectory",
+        "params": {
+          "depth": 6,
+          "iterations": 1000,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 20
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 199.30161520000547,
+          "roc_auc": 0.7866030142541816,
+          "average_precision": 0.5511140203855576,
+          "log_loss": 0.4271320074159176,
+          "brier": 0.1339768230845057
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 209.91339090000838,
+          "roc_auc": 0.7977295296889785,
+          "average_precision": 0.5771767806378689,
+          "log_loss": 0.41697209191645607,
+          "brier": 0.13081710808320146
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 187.8075190000236,
+          "roc_auc": 0.7715671109452553,
+          "average_precision": 0.5369446903864011,
+          "log_loss": 0.4373886676205469,
+          "brier": 0.13806827508113748
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7848912591967565,
+        "average_precision": 0.5529650705531763,
+        "log_loss": 0.427164871403428,
+        "brier": 0.1342875935808271
+      },
+      "mean_fold_log_loss": 0.42716425565097355
+    },
+    "trajectory_ordered": {
+      "name": "trajectory_ordered",
+      "config": {
+        "name": "trajectory_ordered",
+        "family": "catboost",
+        "variant": "trajectory",
+        "params": {
+          "depth": 4,
+          "iterations": 800,
+          "learning_rate": 0.04,
+          "l2_leaf_reg": 10,
+          "boosting_type": "Ordered"
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 121.37042010005098,
+          "roc_auc": 0.7824434347828422,
+          "average_precision": 0.5452903145478745,
+          "log_loss": 0.43019169104326205,
+          "brier": 0.13501693216153363
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 129.52006250002887,
+          "roc_auc": 0.7941601089681358,
+          "average_precision": 0.5701302769579049,
+          "log_loss": 0.4193181975902238,
+          "brier": 0.131401840072542
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 132.29203080001753,
+          "roc_auc": 0.7686524445304437,
+          "average_precision": 0.5431174347655634,
+          "log_loss": 0.4375717390037573,
+          "brier": 0.13780020382681324
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7814587005277662,
+        "average_precision": 0.5506585497793428,
+        "log_loss": 0.4290278682120176,
+        "brier": 0.1347398777834532
+      },
+      "mean_fold_log_loss": 0.4290272092124144
+    },
+    "trajectory_no_demo": {
+      "name": "trajectory_no_demo",
+      "config": {
+        "name": "trajectory_no_demo",
+        "family": "catboost",
+        "variant": "trajectory_no_demographics",
+        "params": {
+          "depth": 4,
+          "iterations": 1200,
+          "learning_rate": 0.03,
+          "l2_leaf_reg": 10
+        }
+      },
+      "feature_count": 64,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 140.26192750001792,
+          "roc_auc": 0.7831351795716918,
+          "average_precision": 0.5559247738147316,
+          "log_loss": 0.4284290508271562,
+          "brier": 0.13420442942151442
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 134.0215235000942,
+          "roc_auc": 0.7928905549172371,
+          "average_precision": 0.5695998126759629,
+          "log_loss": 0.4201137757287974,
+          "brier": 0.13183222472954423
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 108.5485451000277,
+          "roc_auc": 0.7682679431421691,
+          "average_precision": 0.5372281151815606,
+          "log_loss": 0.4395494229109293,
+          "brier": 0.13879674109252396
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7810463708258188,
+        "average_precision": 0.5525319004566894,
+        "log_loss": 0.4293645871116941,
+        "brier": 0.13494460885117554
+      },
+      "mean_fold_log_loss": 0.42936408315562763
+    },
+    "lightgbm_trajectory_15": {
+      "name": "lightgbm_trajectory_15",
+      "config": {
+        "name": "lightgbm_trajectory_15",
+        "family": "lightgbm",
+        "variant": "trajectory",
+        "params": {
+          "num_leaves": 15,
+          "n_estimators": 700,
+          "learning_rate": 0.025,
+          "min_child_samples": 100,
+          "reg_lambda": 10.0,
+          "colsample_bytree": 0.9
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 6.229007099987939,
+          "roc_auc": 0.781118733442432,
+          "average_precision": 0.5428643087629315,
+          "log_loss": 0.43244494309617415,
+          "brier": 0.13574438651055554
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 6.232224799925461,
+          "roc_auc": 0.791174391259201,
+          "average_precision": 0.5631540266799566,
+          "log_loss": 0.42250456331097797,
+          "brier": 0.13272707619848523
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 3.973272000090219,
+          "roc_auc": 0.7679069571907711,
+          "average_precision": 0.5340541335598099,
+          "log_loss": 0.4408763910866012,
+          "brier": 0.1390186032508217
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7797621894761553,
+        "average_precision": 0.5445491074322346,
+        "log_loss": 0.4319425682785108,
+        "brier": 0.13583020485391242
+      },
+      "mean_fold_log_loss": 0.4319419658312511
+    },
+    "lightgbm_trajectory_31": {
+      "name": "lightgbm_trajectory_31",
+      "config": {
+        "name": "lightgbm_trajectory_31",
+        "family": "lightgbm",
+        "variant": "trajectory",
+        "params": {
+          "num_leaves": 31,
+          "n_estimators": 700,
+          "learning_rate": 0.025,
+          "min_child_samples": 100,
+          "reg_lambda": 10.0,
+          "colsample_bytree": 0.9
+        }
+      },
+      "feature_count": 68,
+      "folds": [
+        {
+          "fold": 0,
+          "train_rows": 10999,
+          "hold_rows": 5501,
+          "hold_events": 1217,
+          "seconds": 5.362330699921586,
+          "roc_auc": 0.7762488040957276,
+          "average_precision": 0.5397470307729167,
+          "log_loss": 0.43994539813655426,
+          "brier": 0.13766431210877614
+        },
+        {
+          "fold": 1,
+          "train_rows": 11001,
+          "hold_rows": 5499,
+          "hold_events": 1216,
+          "seconds": 17.148091500042938,
+          "roc_auc": 0.7856722223416936,
+          "average_precision": 0.5562336552092123,
+          "log_loss": 0.4282854526304765,
+          "brier": 0.13404478942257986
+        },
+        {
+          "fold": 2,
+          "train_rows": 11000,
+          "hold_rows": 5500,
+          "hold_events": 1216,
+          "seconds": 5.06198730005417,
+          "roc_auc": 0.7625131878409258,
+          "average_precision": 0.5261616353489231,
+          "log_loss": 0.4492644147360155,
+          "brier": 0.14121162481524538
+        }
+      ],
+      "pooled_oof": {
+        "roc_auc": 0.7745127187575351,
+        "average_precision": 0.5392249807866736,
+        "log_loss": 0.4391657951643795,
+        "brier": 0.13764046148054507
+      },
+      "mean_fold_log_loss": 0.43916508850101543
+    }
+  },
+  "limitations": "OOF was used to select candidates/weights: selected score and intervals are descriptive, optimistic, not independent validation."
+}

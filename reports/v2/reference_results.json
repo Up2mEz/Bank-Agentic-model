@@ -1,0 +1,83 @@
+{
+  "results": [
+    {
+      "model": "reference_v1",
+      "is_selected_pipeline": false,
+      "partition": "exposed_validation",
+      "calibration": "identity",
+      "roc_auc": 0.8016181449542462,
+      "average_precision": 0.6013496669128874,
+      "log_loss": 0.41212808444306864,
+      "brier": 0.1281128322954186
+    },
+    {
+      "model": "reference_v1",
+      "is_selected_pipeline": false,
+      "partition": "exposed_test",
+      "calibration": "identity",
+      "roc_auc": 0.7860823375077958,
+      "average_precision": 0.5430199292487107,
+      "log_loss": 0.42866282133346684,
+      "brier": 0.13516855663264213
+    },
+    {
+      "model": "candidate_blend",
+      "is_selected_pipeline": true,
+      "partition": "exposed_validation",
+      "calibration": "identity",
+      "roc_auc": 0.8015023851112211,
+      "average_precision": 0.5990305491533976,
+      "log_loss": 0.4118790731702912,
+      "brier": 0.1280867108084694
+    },
+    {
+      "model": "candidate_blend",
+      "is_selected_pipeline": true,
+      "partition": "exposed_test",
+      "calibration": "identity",
+      "roc_auc": 0.7869328095541903,
+      "average_precision": 0.5483432530200874,
+      "log_loss": 0.42686635013189433,
+      "brier": 0.13439856470951053
+    }
+  ],
+  "calibration": {
+    "reference_v1": {
+      "kind": "identity",
+      "oof_losses": {
+        "identity": 0.43254594594003276,
+        "sigmoid": 0.43272960308874747,
+        "isotonic": 0.44695072628090715
+      }
+    },
+    "candidate_blend": {
+      "kind": "identity",
+      "oof_losses": {
+        "identity": 0.43241860626379097,
+        "sigmoid": 0.43249906022156104,
+        "isotonic": 0.43791057493451124
+      }
+    }
+  },
+  "fits": [
+    {
+      "model": "lightgbm_trajectory_15",
+      "seconds": 1.5506814999971539,
+      "reload_parity": true
+    },
+    {
+      "model": "reference_v1",
+      "seconds": 54.798531999927945,
+      "reload_parity": true
+    },
+    {
+      "model": "trajectory_d6",
+      "seconds": 139.49671370000578,
+      "reload_parity": true
+    }
+  ],
+  "selection_unchanged": true,
+  "selection_sha256": "7f0abe8b77c7df993041d62dc432c210fb483580ed8992f09c63efe6e31c712e",
+  "evaluated_utc": "2026-10-04T14:06:38.348018+00:00",
+  "no_unbiased_test_claim": true
+}

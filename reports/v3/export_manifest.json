@@ -1,0 +1,56 @@
+{
+  "exported_utc": "2026-10-05T07:41:34.523902+00:00",
+  "files": [
+    {
+      "source": "outputs/experiment_v3/REPORT_TH.md",
+      "export": "REPORT_TH.md",
+      "sha256": "676a9c2411634c88a4bb80c412018d3468e35863be12bc36e6f73706990a5a8a"
+    },
+    {
+      "source": "outputs/experiment_v3/protocol.json",
+      "export": "protocol.json",
+      "sha256": "31244f7a4c4e1b3bf55875eb66bec1d068704521177a6e7924d2d5d8e2671d72"
+    },
+    {
+      "source": "outputs/experiment_v3/selection.json",
+      "export": "selection.json",
+      "sha256": "cdf4a0a8d533c5a77a106c7c615646bd31e8fcd2c9b1432694a92f18d162c6b9"
+    },
+    {
+      "source": "outputs/experiment_v3/reference_results.json",
+      "export": "reference_results.json",
+      "sha256": "a08cf82c687a71a86b2865a83714c90ef94c9a14944867a367c1a108af777006"
+    },
+    {
+      "source": "outputs/experiment_v3/reference_metrics.csv",
+      "export": "reference_metrics.csv",
+      "sha256": "5579e58f76641dff961f2fb7d70cc5f82e584ef9c41eb09f1243f732029c4c33"
+    },
+    {
+      "source": "outputs/experiment_v3/analysis.json",
+      "export": "analysis.json",
+      "sha256": "1142b6c5172f157f574e051e7a205f8dd15761ee81b3adcc7e85b188f9b337af"
+    },
+    {
+      "source": "outputs/experiment_v3/failure_slices.csv",
+      "export": "failure_slices.csv",
+      "sha256": "185bfdf88056eabc5d775afcd2087eabbe5b243e0b082711bf886e7a475f2104"
+    },
+    {
+      "source": "outputs/experiment_v3/capacity_comparison.csv",
+      "export": "capacity_comparison.csv",
+      "sha256": "3250dbbb3e2a39c4f626b12b203840dc8b18730f6aee11e42af0cab2a77a21d7"
+    },
+    {
+      "source": "outputs/experiment_v3/diagnostics.png",
+      "export": "diagnostics.png",
+      "sha256": "9c2bf9178b0ad098b57adbb46cb13a17ef28ac86eaff6005ebda33c6ca06b6bc"
+    },
+    {
+      "source": "outputs/experiment_v3/verification.json",
+      "export": "verification.json",
+      "sha256": "e420272618ad878f8d6289dc162f787bef5809ada04c1c286e194ce9c39d01e6"
+    }
+  ],
+  "data_attribution": "Derived from Yeh (2009), UCI Default of Credit Card Clients, CC BY 4.0; exact-vector groups are not verified borrower identities."
+}

@@ -1,0 +1,287 @@
+{
+  "slice_comparison": [
+    {
+      "slice": "no_positive_pay_code",
+      "model": "legacy_v1",
+      "rows": 2968,
+      "events": 349,
+      "mean_probability": 0.12103686374750597,
+      "event_rate": 0.11758760107816711,
+      "metrics": {
+        "roc_auc": 0.6752046703011167,
+        "average_precision": 0.19904511878488096,
+        "log_loss": 0.34295924695544133,
+        "brier": 0.09992897187200395
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 2619,
+        "fp": 0,
+        "fn": 348,
+        "tp": 1,
+        "recall": 0.0028653295128939827,
+        "precision": 1.0,
+        "flagged_rate": 0.00033692722371967657,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "slice": "no_positive_pay_code",
+      "model": "candidate",
+      "rows": 2968,
+      "events": 349,
+      "mean_probability": 0.11714143741143744,
+      "event_rate": 0.11758760107816711,
+      "metrics": {
+        "roc_auc": 0.669746430919739,
+        "average_precision": 0.20996461072395425,
+        "log_loss": 0.3428910814651713,
+        "brier": 0.0997121675543725
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 2619,
+        "fp": 0,
+        "fn": 348,
+        "tp": 1,
+        "recall": 0.0028653295128939827,
+        "precision": 1.0,
+        "flagged_rate": 0.00033692722371967657,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "slice": "any_positive_pay_code",
+      "model": "legacy_v1",
+      "rows": 1532,
+      "events": 646,
+      "mean_probability": 0.4220803641702251,
+      "event_rate": 0.4216710182767624,
+      "metrics": {
+        "roc_auc": 0.7375732935445771,
+        "average_precision": 0.6496550605390624,
+        "log_loss": 0.5956686033176167,
+        "brier": 0.20415610617720323
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 692,
+        "fp": 194,
+        "fn": 289,
+        "tp": 357,
+        "recall": 0.5526315789473685,
+        "precision": 0.647912885662432,
+        "flagged_rate": 0.35966057441253263,
+        "false_positive_rate": 0.21896162528216703
+      }
+    },
+    {
+      "slice": "any_positive_pay_code",
+      "model": "candidate",
+      "rows": 1532,
+      "events": 646,
+      "mean_probability": 0.4256794510375625,
+      "event_rate": 0.4216710182767624,
+      "metrics": {
+        "roc_auc": 0.7437198177358147,
+        "average_precision": 0.657235368049685,
+        "log_loss": 0.5895547296376608,
+        "brier": 0.20159779888473883
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 694,
+        "fp": 192,
+        "fn": 280,
+        "tp": 366,
+        "recall": 0.56656346749226,
+        "precision": 0.6559139784946236,
+        "flagged_rate": 0.3642297650130548,
+        "false_positive_rate": 0.21670428893905191
+      }
+    },
+    {
+      "slice": "PAY_0=1",
+      "model": "legacy_v1",
+      "rows": 554,
+      "events": 187,
+      "mean_probability": 0.35153211580449434,
+      "event_rate": 0.33754512635379064,
+      "metrics": {
+        "roc_auc": 0.6973946873770562,
+        "average_precision": 0.507341348103659,
+        "log_loss": 0.5896749909616027,
+        "brier": 0.2015331220467193
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 324,
+        "fp": 43,
+        "fn": 136,
+        "tp": 51,
+        "recall": 0.2727272727272727,
+        "precision": 0.5425531914893617,
+        "flagged_rate": 0.16967509025270758,
+        "false_positive_rate": 0.11716621253405994
+      }
+    },
+    {
+      "slice": "PAY_0=1",
+      "model": "candidate",
+      "rows": 554,
+      "events": 187,
+      "mean_probability": 0.3438793374179464,
+      "event_rate": 0.33754512635379064,
+      "metrics": {
+        "roc_auc": 0.7066181934750615,
+        "average_precision": 0.51720114927718,
+        "log_loss": 0.5825075042822221,
+        "brier": 0.1990150967710884
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 324,
+        "fp": 43,
+        "fn": 135,
+        "tp": 52,
+        "recall": 0.27807486631016043,
+        "precision": 0.5473684210526316,
+        "flagged_rate": 0.17148014440433212,
+        "false_positive_rate": 0.11716621253405994
+      }
+    },
+    {
+      "slice": "bill1_nonpositive",
+      "model": "legacy_v1",
+      "rows": 386,
+      "events": 92,
+      "mean_probability": 0.242904215116521,
+      "event_rate": 0.23834196891191708,
+      "metrics": {
+        "roc_auc": 0.6841356107660455,
+        "average_precision": 0.43611177365652776,
+        "log_loss": 0.5114757894932735,
+        "brier": 0.16694075224034843
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 294,
+        "fp": 0,
+        "fn": 89,
+        "tp": 3,
+        "recall": 0.03260869565217391,
+        "precision": 1.0,
+        "flagged_rate": 0.007772020725388601,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "slice": "bill1_nonpositive",
+      "model": "candidate",
+      "rows": 386,
+      "events": 92,
+      "mean_probability": 0.23575826796966437,
+      "event_rate": 0.23834196891191708,
+      "metrics": {
+        "roc_auc": 0.7249519372966579,
+        "average_precision": 0.49895126037045145,
+        "log_loss": 0.4924317329039161,
+        "brier": 0.15975130772718926
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 293,
+        "fp": 1,
+        "fn": 85,
+        "tp": 7,
+        "recall": 0.07608695652173914,
+        "precision": 0.875,
+        "flagged_rate": 0.02072538860103627,
+        "false_positive_rate": 0.003401360544217687
+      }
+    },
+    {
+      "slice": "zero_payments_3plus",
+      "model": "legacy_v1",
+      "rows": 872,
+      "events": 263,
+      "mean_probability": 0.31349631726380395,
+      "event_rate": 0.30160550458715596,
+      "metrics": {
+        "roc_auc": 0.7579620021602452,
+        "average_precision": 0.5967878687033448,
+        "log_loss": 0.5180252934154326,
+        "brier": 0.1705970371921903
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 562,
+        "fp": 47,
+        "fn": 163,
+        "tp": 100,
+        "recall": 0.38022813688212925,
+        "precision": 0.6802721088435374,
+        "flagged_rate": 0.16857798165137614,
+        "false_positive_rate": 0.07717569786535304
+      }
+    },
+    {
+      "slice": "zero_payments_3plus",
+      "model": "candidate",
+      "rows": 872,
+      "events": 263,
+      "mean_probability": 0.3095624996621514,
+      "event_rate": 0.30160550458715596,
+      "metrics": {
+        "roc_auc": 0.7665280613359805,
+        "average_precision": 0.6097226764532486,
+        "log_loss": 0.5112103771280518,
+        "brier": 0.1676501261620369
+      },
+      "threshold_0.5": {
+        "threshold": 0.5,
+        "tn": 558,
+        "fp": 51,
+        "fn": 156,
+        "tp": 107,
+        "recall": 0.4068441064638783,
+        "precision": 0.6772151898734177,
+        "flagged_rate": 0.1811926605504587,
+        "false_positive_rate": 0.08374384236453201
+      }
+    }
+  ],
+  "selected_catboost_curve_diagnostics": [
+    {
+      "candidate": "trajectory_d6",
+      "fold": 0,
+      "fixed_iterations": 1000,
+      "heldout_min_iteration_posthoc": 353,
+      "heldout_min_loss": 0.42437155962060497,
+      "heldout_final_loss": 0.42713200741591734,
+      "heldout_final_minus_min": 0.0027604477953123707,
+      "train_final_loss": 0.3466158529402916
+    },
+    {
+      "candidate": "trajectory_d6",
+      "fold": 1,
+      "fixed_iterations": 1000,
+      "heldout_min_iteration_posthoc": 727,
+      "heldout_min_loss": 0.41634565258757644,
+      "heldout_final_loss": 0.4169720919164552,
+      "heldout_final_minus_min": 0.0006264393288787362,
+      "train_final_loss": 0.35302531819094
+    },
+    {
+      "candidate": "trajectory_d6",
+      "fold": 2,
+      "fixed_iterations": 1000,
+      "heldout_min_iteration_posthoc": 243,
+      "heldout_min_loss": 0.43450434634829344,
+      "heldout_final_loss": 0.4373886676205472,
+      "heldout_final_minus_min": 0.0028843212722537426,
+      "train_final_loss": 0.34644111050176973
+    }
+  ],
+  "scope": "Retrospective exploratory diagnosis from exposed reference and outer CV curves. Best curve iteration is posthoc only, not used to refit, change settings or reselect. No causal or unbiased significance claim."
+}

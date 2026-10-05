@@ -1,0 +1,341 @@
+{
+  "champion_preselected": "catboost_behavior",
+  "n_test": 4500,
+  "test_events": 995,
+  "test_prevalence": 0.22111111111111112,
+  "results": [
+    {
+      "roc_auc": 0.7692349049097126,
+      "average_precision": 0.5255075211069247,
+      "log_loss": 0.4397921165520625,
+      "brier": 0.13805499455535267,
+      "model": "logistic__raw",
+      "track": "main",
+      "gini": 0.5384698098194252,
+      "calibration_intercept": -0.05428889901820633,
+      "calibration_slope": 0.9631393202729324
+    },
+    {
+      "roc_auc": 0.7692349049097126,
+      "average_precision": 0.5255075211069247,
+      "log_loss": 0.4397921165520625,
+      "brier": 0.13805499455535267,
+      "model": "logistic",
+      "track": "main",
+      "gini": 0.5384698098194252,
+      "calibration_intercept": -0.05428889901820633,
+      "calibration_slope": 0.9631393202729324
+    },
+    {
+      "roc_auc": 0.781585961189686,
+      "average_precision": 0.540111993765165,
+      "log_loss": 0.4307345402807159,
+      "brier": 0.13557988472423985,
+      "model": "catboost__raw",
+      "track": "main",
+      "gini": 0.5631719223793721,
+      "calibration_intercept": -0.06230667826381306,
+      "calibration_slope": 0.9611934920632057
+    },
+    {
+      "roc_auc": 0.781585961189686,
+      "average_precision": 0.540111993765165,
+      "log_loss": 0.4307345402807159,
+      "brier": 0.13557988472423985,
+      "model": "catboost",
+      "track": "main",
+      "gini": 0.5631719223793721,
+      "calibration_intercept": -0.06230667826381306,
+      "calibration_slope": 0.9611934920632057
+    },
+    {
+      "roc_auc": 0.7766999046588148,
+      "average_precision": 0.5394903210996718,
+      "log_loss": 0.43326418485170637,
+      "brier": 0.1364425576884751,
+      "model": "lightgbm__raw",
+      "track": "main",
+      "gini": 0.5533998093176296,
+      "calibration_intercept": -0.09006849037617741,
+      "calibration_slope": 0.9161985219971985
+    },
+    {
+      "roc_auc": 0.7766999046588148,
+      "average_precision": 0.5394903210996718,
+      "log_loss": 0.43275031509667183,
+      "brier": 0.13636732191590195,
+      "model": "lightgbm",
+      "track": "main",
+      "gini": 0.5533998093176296,
+      "calibration_intercept": 0.04959047920738322,
+      "calibration_slope": 1.0372647917350357
+    },
+    {
+      "roc_auc": 0.7802225105556312,
+      "average_precision": 0.528024020359554,
+      "log_loss": 0.434317130383355,
+      "brier": 0.13691598170881636,
+      "model": "ebm__raw",
+      "track": "main",
+      "gini": 0.5604450211112624,
+      "calibration_intercept": -0.059614504444805504,
+      "calibration_slope": 0.9618213814081593
+    },
+    {
+      "roc_auc": 0.7802225105556312,
+      "average_precision": 0.528024020359554,
+      "log_loss": 0.434317130383355,
+      "brier": 0.13691598170881636,
+      "model": "ebm",
+      "track": "main",
+      "gini": 0.5604450211112624,
+      "calibration_intercept": -0.059614504444805504,
+      "calibration_slope": 0.9618213814081593
+    },
+    {
+      "roc_auc": 0.7860757424784407,
+      "average_precision": 0.5421180427489984,
+      "log_loss": 0.42899274338807525,
+      "brier": 0.135412520706574,
+      "model": "catboost_behavior__raw",
+      "track": "main",
+      "gini": 0.5721514849568814,
+      "calibration_intercept": -0.04910185993196392,
+      "calibration_slope": 0.971001170250493
+    },
+    {
+      "roc_auc": 0.7860757424784407,
+      "average_precision": 0.5421180427489984,
+      "log_loss": 0.42899274338807525,
+      "brier": 0.135412520706574,
+      "model": "catboost_behavior",
+      "track": "main",
+      "gini": 0.5721514849568814,
+      "calibration_intercept": -0.04910185993196392,
+      "calibration_slope": 0.971001170250493
+    },
+    {
+      "roc_auc": 0.7644507845934378,
+      "average_precision": 0.5115270545558214,
+      "log_loss": 0.4419312129358841,
+      "brier": 0.1391928682297959,
+      "model": "aux_tabpfn_v2__raw",
+      "track": "auxiliary_1000_fit",
+      "gini": 0.5289015691868757,
+      "calibration_intercept": -0.03445306934889932,
+      "calibration_slope": 0.9278530783016289
+    },
+    {
+      "roc_auc": 0.7644507845934378,
+      "average_precision": 0.5115270545558214,
+      "log_loss": 0.4419312129358841,
+      "brier": 0.1391928682297959,
+      "model": "aux_tabpfn_v2",
+      "track": "auxiliary_1000_fit",
+      "gini": 0.5289015691868757,
+      "calibration_intercept": -0.03445306934889932,
+      "calibration_slope": 0.9278530783016289
+    },
+    {
+      "roc_auc": 0.7556041261944529,
+      "average_precision": 0.49598060285724455,
+      "log_loss": 0.47019071527639367,
+      "brier": 0.145154352335721,
+      "model": "aux_catboost_1000__raw",
+      "track": "auxiliary_1000_fit",
+      "gini": 0.5112082523889059,
+      "calibration_intercept": -0.2778593424172396,
+      "calibration_slope": 0.6278953590562556
+    },
+    {
+      "roc_auc": 0.7556041261944529,
+      "average_precision": 0.49598060285724455,
+      "log_loss": 0.44864538688146693,
+      "brier": 0.14197444873556983,
+      "model": "aux_catboost_1000",
+      "track": "auxiliary_1000_fit",
+      "gini": 0.5112082523889059,
+      "calibration_intercept": 0.0633214781536401,
+      "calibration_slope": 1.0188105345609375
+    }
+  ],
+  "champion_bootstrap_95_intervals": {
+    "roc_auc": [
+      0.7710710404341952,
+      0.803646306656805
+    ],
+    "average_precision": [
+      0.5144493363293714,
+      0.5734921429588858
+    ],
+    "log_loss": [
+      0.41184798256287425,
+      0.4447976963435904
+    ],
+    "brier": [
+      0.12909215933304388,
+      0.14123275690871995
+    ],
+    "auc_minus_logistic": [
+      0.00877300625306623,
+      0.02744480503484959
+    ],
+    "log_loss_minus_logistic": [
+      -0.015800445834671665,
+      -0.00608953814037193
+    ]
+  },
+  "bootstrap_unit": "identical-predictor group, 300 replicates; descriptive within-cohort uncertainty",
+  "subgroups": [
+    {
+      "feature": "SEX",
+      "value": 1,
+      "rows": 1763,
+      "events": 429,
+      "mean_prediction": 0.24288327011040503,
+      "event_rate": 0.24333522404991492,
+      "roc_auc": 0.786274694820422,
+      "average_precision": 0.5676736099685635,
+      "log_loss": 0.4495332746740715,
+      "brier": 0.14315417758535456
+    },
+    {
+      "feature": "SEX",
+      "value": 2,
+      "rows": 2737,
+      "events": 566,
+      "mean_prediction": 0.2110563844745117,
+      "event_rate": 0.20679576178297407,
+      "roc_auc": 0.7846179074305859,
+      "average_precision": 0.5224283514336819,
+      "log_loss": 0.41576184946874334,
+      "brier": 0.13042584146752026
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 0,
+      "rows": 1,
+      "events": 0,
+      "mean_prediction": 0.095179011505094,
+      "event_rate": 0.0
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 1,
+      "rows": 1588,
+      "events": 297,
+      "mean_prediction": 0.19112680544259628,
+      "event_rate": 0.18702770780856423,
+      "roc_auc": 0.8127179358782767,
+      "average_precision": 0.584798567703866,
+      "log_loss": 0.3690201459961315,
+      "brier": 0.11175758183620357
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 2,
+      "rows": 2071,
+      "events": 493,
+      "mean_prediction": 0.23760397458714674,
+      "event_rate": 0.2380492515692902,
+      "roc_auc": 0.7650400923447916,
+      "average_precision": 0.5266829245362478,
+      "log_loss": 0.46263083070183514,
+      "brier": 0.14838747848997785
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 3,
+      "rows": 774,
+      "events": 203,
+      "mean_prediction": 0.2640030022718386,
+      "event_rate": 0.2622739018087855,
+      "roc_auc": 0.7614115759233218,
+      "average_precision": 0.5492216634394576,
+      "log_loss": 0.4875173758248962,
+      "brier": 0.15857346830834843
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 4,
+      "rows": 18,
+      "events": 1,
+      "mean_prediction": 0.08179840819454798,
+      "event_rate": 0.05555555555555555,
+      "roc_auc": 0.5882352941176471,
+      "average_precision": 0.125,
+      "log_loss": 0.2187326955955469,
+      "brier": 0.0552603985747287
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 5,
+      "rows": 40,
+      "events": 1,
+      "mean_prediction": 0.09519289981357813,
+      "event_rate": 0.025,
+      "roc_auc": 0.9743589743589743,
+      "average_precision": 0.5,
+      "log_loss": 0.10971841727413656,
+      "brier": 0.019630531922071776
+    },
+    {
+      "feature": "EDUCATION",
+      "value": 6,
+      "rows": 8,
+      "events": 0,
+      "mean_prediction": 0.0704676235757068,
+      "event_rate": 0.0
+    },
+    {
+      "feature": "MARRIAGE",
+      "value": 0,
+      "rows": 5,
+      "events": 1,
+      "mean_prediction": 0.28172190569910444,
+      "event_rate": 0.2,
+      "roc_auc": 0.75,
+      "average_precision": 0.5,
+      "log_loss": 0.4740507617465082,
+      "brier": 0.17153626049835877
+    },
+    {
+      "feature": "MARRIAGE",
+      "value": 1,
+      "rows": 2041,
+      "events": 483,
+      "mean_prediction": 0.2384594704719003,
+      "event_rate": 0.23664870161685447,
+      "roc_auc": 0.7751556781667849,
+      "average_precision": 0.5454058235856118,
+      "log_loss": 0.4529368395183177,
+      "brier": 0.1451354458785964
+    },
+    {
+      "feature": "MARRIAGE",
+      "value": 2,
+      "rows": 2406,
+      "events": 498,
+      "mean_prediction": 0.21029198802006696,
+      "event_rate": 0.20698254364089774,
+      "roc_auc": 0.7936852230725838,
+      "average_precision": 0.5375070364407344,
+      "log_loss": 0.4079584699882428,
+      "brier": 0.12690396272250257
+    },
+    {
+      "feature": "MARRIAGE",
+      "value": 3,
+      "rows": 48,
+      "events": 13,
+      "mean_prediction": 0.2457836994470297,
+      "event_rate": 0.2708333333333333,
+      "roc_auc": 0.7824175824175824,
+      "average_precision": 0.66714292243704,
+      "log_loss": 0.4605192331043215,
+      "brier": 0.14471421934447523
+    }
+  ],
+  "no_test_reselection": true,
+  "not_temporal_validation": true
+}

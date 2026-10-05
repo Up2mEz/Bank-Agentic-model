@@ -1,0 +1,137 @@
+"""Bounded group-CV improvement research. Every existing reference set is exposed."""
+from __future__ import annotations
+import argparse
+import hashlib
+import time
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor,as_completed
+import joblib
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import StratifiedGroupKFold
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+from credit_experiment import ROOT,OUT as OLD,TARGET,CATS,data,read_json,write_json,metrics,probability,input_for,choose_calibration,calibrated
+from credit_features_v2 import trajectory_features,FEATURE_NOTES
+
+OUT=ROOT/'outputs/experiment_v2';SEED=20261005
+
+def candidates():
+    defs=[('reference_v1','catboost','behavior',4,600,.05,5),
+      ('trajectory_fixed','catboost','trajectory',4,600,.05,5),
+      ('trajectory_d4_long','catboost','trajectory',4,1200,.03,10),
+      ('trajectory_d5','catboost','trajectory',5,1000,.03,10),
+      ('trajectory_d6','catboost','trajectory',6,1000,.03,20),
+      ('trajectory_ordered','catboost','trajectory',4,800,.04,10),
+      ('trajectory_no_demo','catboost','trajectory_no_demographics',4,1200,.03,10)]
+    ans=[{'name':name,'family':family,'variant':variant,'params':{'depth':depth,'iterations':iters,'learning_rate':lr,'l2_leaf_reg':l2,**({'boosting_type':'Ordered'} if 'ordered' in name else {})}} for name,family,variant,depth,iters,lr,l2 in defs]
+    for leaves in [15,31]:ans.append({'name':f'lightgbm_trajectory_{leaves}','family':'lightgbm','variant':'trajectory','params':{'num_leaves':leaves,'n_estimators':700,'learning_rate':.025,'min_child_samples':100,'reg_lambda':10.,'colsample_bytree':.9}})
+    return ans
+
+def model_for(config,x):
+    cats=[c for c in CATS if c in x]
+    if config['family']=='catboost':return CatBoostClassifier(**config['params'],cat_features=cats,loss_function='Logloss',random_seed=SEED,thread_count=2,verbose=False,allow_writing_files=False)
+    return LGBMClassifier(**config['params'],random_state=SEED,n_jobs=2,verbosity=-1)
+
+def prepare():
+    if (OUT/'protocol.json').exists():raise RuntimeError('Protocol already frozen.')
+    OUT.mkdir(parents=True,exist_ok=True);d=data();s=pd.read_csv(OLD/'splits.csv',dtype={'group':str});ix=np.flatnonzero(s.partition=='fit');y=d[TARGET].to_numpy();fold=np.full(len(d),-1)
+    for k,(_,hold) in enumerate(StratifiedGroupKFold(n_splits=3,shuffle=True,random_state=SEED).split(d.iloc[ix],y[ix],s.group.iloc[ix])):fold[ix[hold]]=k
+    assert pd.DataFrame({'g':s.group.iloc[ix].to_numpy(),'fold':fold[ix]}).groupby('g').fold.nunique().max()==1
+    df=pd.DataFrame({'ID':d.ID,'original_partition':s.partition,'group':s.group,'cv_fold':fold});df.to_csv(OUT/'folds.csv',index=False)
+    aux=read_json(OLD/'tabpfn_cpu_subset.json');rng=np.random.default_rng(SEED);context=aux['fit'].copy()
+    for label in [0,1]:
+        total=round(4000*(y[ix]==label).mean());count=sum(y[context]==label);pool=np.setdiff1d(ix[y[ix]==label],context)
+        context.extend(rng.choice(pool,total-count,replace=False).tolist())
+    context=sorted(context);assert len(context)==4000 and set(aux['fit'])<=set(context)
+    write_json(OUT/'tabpfn_4000_subset.json',{'fit':context,'validation':aux['validation'],'calibration':aux['calibration'],'nested_1000_fit':aux['fit'],'note':'Nested random stratified context; source partitions keep exact-vector groups disjoint, but near-duplicates/borrower identity unknown.'})
+    proto={'experiment':'experiment_v2','created_utc':pd.Timestamp.now(tz='UTC').isoformat(),'seed':SEED,'task':'Same within-cohort dataset-label research, non-commercial',
+      'candidate_grid':candidates(),'selection':'Minimum raw group-OOF log loss on original fit16500; all nine candidates fixed before fit; selected score optimistic, not unbiased',
+      'cv':'3-fold StratifiedGroupKFold on original fit only; fixed iterations, no early stopping or best-model selection on outer held-out fold',
+      'blending':'Best CatBoost and best LightGBM by same OOF log loss; fixed CatBoost weights [0,.25,.5,.75,1], choose minimum OOF loss. Includes endpoint models.',
+      'promotion_gate':'OOF logloss improvement at least .001 vs reference, every fold logloss better, and OOF Brier no worse. Descriptive gate, not significance or generalization proof.',
+      'final_fit':'Original fit16500, same as round1; no extra validation rows added',
+      'calibration':'Identity/sigmoid/isotonic via 5-fold group OOF inside original calibration4500, already reused; no independence claim',
+      'references':'Original validation4500 and test4500 both exposed. Evaluate once after frozen OOF selection; no retuning. Never label these new holdout.',
+      'feature_notes':FEATURE_NOTES,'thread_budget':'2 concurrent candidate jobs, 2 CPU threads/model; TabPFN separate local CPU job, explicit timings not controlled throughput benchmark',
+      'auxiliary':'TabPFN3.5 4000 context, 2 estimators, same val400/cal600/test4500 as old1000. CatBoost fixed depth6/l2=5/600trees/.05 on same4000 comparator; no hyperparameter tuning or model selection on oldtest',
+      'stop_rule':'No new candidates after grid; retain all failures; no extra tuning if promotion gate fails',
+      'sha256':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [OLD/'protocol.json',OLD/'splits.csv',OLD/'selection.json',OLD/'test_results.json',ROOT/'scripts/credit_features_v2.py',ROOT/'data/raw/kaggle_credit_card/UCI_Credit_Card.csv']}}
+    write_json(OUT/'protocol.json',proto);print('FROZEN',len(proto['candidate_grid']),'candidates',flush=True)
+
+def cv_candidate(config):
+    name=config['name'];dest=OUT/'cv'/name;dest.mkdir(parents=True,exist_ok=True)
+    if (dest/'summary.json').exists():return read_json(dest/'summary.json')
+    d=data();f=pd.read_csv(OUT/'folds.csv',dtype={'group':str});ix=np.flatnonzero(f.original_partition=='fit');x=trajectory_features(d,config['variant']);y=d[TARGET].to_numpy();oof=np.full(len(d),np.nan);rows=[]
+    for k in range(3):
+        path=dest/f'fold_{k}.csv';record=dest/f'fold_{k}.json'
+        hold=ix[f.cv_fold.iloc[ix].to_numpy()==k];train=ix[f.cv_fold.iloc[ix].to_numpy()!=k]
+        assert not set(f.group.iloc[train])&set(f.group.iloc[hold])
+        if path.exists() and record.exists():
+            p=pd.read_csv(path);assert np.array_equal(p.ID,d.ID.iloc[hold]);oof[hold]=p.probability;rows.append(read_json(record));continue
+        t=time.perf_counter();model=model_for(config,x);xx=input_for(model,x.iloc[train])
+        if config['family']=='lightgbm':model.credit_categories_={c:list(xx[c].cat.categories) for c in CATS}
+        kwargs={}
+        if config['family']=='catboost':kwargs={'eval_set':(x.iloc[hold],y[hold]),'use_best_model':False}
+        model.fit(xx,y[train],**kwargs);p=probability(model,x.iloc[hold]);oof[hold]=p
+        row={'fold':k,'train_rows':len(train),'hold_rows':len(hold),'hold_events':int(y[hold].sum()),'seconds':time.perf_counter()-t,**metrics(y[hold],p)}
+        if config['family']=='catboost':
+            result=model.get_evals_result();write_json(dest/f'learning_curve_{k}.json',result)
+            assert model.tree_count_==config['params']['iterations']
+        pd.DataFrame({'ID':d.ID.iloc[hold],'probability':p}).to_csv(path,index=False);write_json(record,row);rows.append(row)
+        print('CV',name,'fold',k,'logloss',round(row['log_loss'],6),'seconds',round(row['seconds'],1),flush=True)
+    assert np.isfinite(oof[ix]).all();summary={'name':name,'config':config,'feature_count':len(x.columns),'folds':rows,'pooled_oof':metrics(y[ix],oof[ix]),'mean_fold_log_loss':float(np.mean([r['log_loss'] for r in rows]))}
+    pd.DataFrame({'ID':d.ID.iloc[ix],'probability':oof[ix]}).to_csv(dest/'oof.csv',index=False);write_json(dest/'summary.json',summary);return summary
+
+def cv():
+    proto=read_json(OUT/'protocol.json')
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures={pool.submit(cv_candidate,c):c['name'] for c in proto['candidate_grid']}
+        for future in as_completed(futures):
+            try:print('DONE',future.result()['name'],flush=True)
+            except Exception as e:
+                write_json(OUT/'cv'/f'{futures[future]}_failure.json',{'status':'failed','type':type(e).__name__});raise
+
+def select():
+    if (OUT/'selection.json').exists():raise RuntimeError('Selection already frozen.')
+    configs=read_json(OUT/'protocol.json')['candidate_grid'];d=data();f=pd.read_csv(OUT/'folds.csv');ix=np.flatnonzero(f.original_partition=='fit');y=d[TARGET].to_numpy()[ix]
+    summaries={c['name']:read_json(OUT/'cv'/c['name']/'summary.json') for c in configs}
+    ps={c['name']:pd.read_csv(OUT/'cv'/c['name']/'oof.csv').probability.to_numpy() for c in configs}
+    for c in configs:assert np.array_equal(pd.read_csv(OUT/'cv'/c['name']/'oof.csv').ID,d.ID.iloc[ix])
+    best_cat=min([c['name'] for c in configs if c['family']=='catboost'],key=lambda n:summaries[n]['pooled_oof']['log_loss'])
+    best_lgb=min([c['name'] for c in configs if c['family']=='lightgbm'],key=lambda n:summaries[n]['pooled_oof']['log_loss'])
+    blend=[]
+    for w in [0.,.25,.5,.75,1.]:
+        p=w*ps[best_cat]+(1-w)*ps[best_lgb];blend.append({'catboost_weight':w,'metrics':metrics(y,p)})
+    weight=min(blend,key=lambda r:r['metrics']['log_loss'])['catboost_weight'];p=weight*ps[best_cat]+(1-weight)*ps[best_lgb];base=ps['reference_v1'];folds=f.cv_fold.iloc[ix].to_numpy()
+    deltas=[metrics(y[folds==k],p[folds==k])['log_loss']-metrics(y[folds==k],base[folds==k])['log_loss'] for k in range(3)]
+    improvement=metrics(y,base)['log_loss']-metrics(y,p)['log_loss'];gate=bool(improvement>=.001 and all(v<0 for v in deltas) and metrics(y,p)['brier']<=metrics(y,base)['brier'])
+    record={'best_catboost':best_cat,'best_lightgbm':best_lgb,'blend_catboost_weight':weight,'blend_grid':blend,'candidate_oof':metrics(y,p),'reference_oof':metrics(y,base),'fold_log_loss_deltas':deltas,'promotion_gate_passed':gate,'improvement_oof_log_loss':improvement,'selected_pipeline':'blend' if gate else 'reference_v1','basis':'OOF only; old validation/test not used to choose from this grid','selected_utc':pd.Timestamp.now(tz='UTC').isoformat(),'summaries':summaries,'limitations':'OOF was used to select candidates/weights: selected score and intervals are descriptive, optimistic, not independent validation.'}
+    write_json(OUT/'selection.json',record);pd.DataFrame({'ID':d.ID.iloc[ix],'reference':base,'candidate':p,'fold':folds}).to_csv(OUT/'selected_oof.csv',index=False);print({k:v for k,v in record.items() if k not in ['summaries','blend_grid']},flush=True)
+
+def finalize():
+    if (OUT/'reference_results.json').exists():raise RuntimeError('Already evaluated references; no rerun or reselection.')
+    selection=read_json(OUT/'selection.json');d=data();f=pd.read_csv(OUT/'folds.csv',dtype={'group':str});y=d[TARGET].to_numpy();idx={p:np.flatnonzero(f.original_partition==p) for p in ['fit','validation','calibration','test']}
+    configs={c['name']:c for c in read_json(OUT/'protocol.json')['candidate_grid']};names=sorted(set(['reference_v1',selection['best_catboost'],selection['best_lightgbm']]))
+    probs={};bundles={};fitrecords=[];(OUT/'models').mkdir(exist_ok=True)
+    for name in names:
+        config=configs[name];x=trajectory_features(d,config['variant']);t=time.perf_counter();model=model_for(config,x);xx=input_for(model,x.iloc[idx['fit']])
+        if config['family']=='lightgbm':model.credit_categories_={c:list(xx[c].cat.categories) for c in CATS}
+        model.fit(xx,y[idx['fit']]);probs[name]={p:probability(model,x.iloc[idx[p]]) for p in ['calibration','validation','test']}
+        bundle={'model':model,'variant':config['variant'],'columns':list(x.columns),'config':config};joblib.dump(bundle,OUT/'models'/f'{name}.joblib')
+        restored=joblib.load(OUT/'models'/f'{name}.joblib');assert np.allclose(probability(restored['model'],x.iloc[idx['validation'][:25]]),probs[name]['validation'][:25],rtol=1e-10,atol=1e-12)
+        bundles[name]=bundle;fitrecords.append({'model':name,'seconds':time.perf_counter()-t,'reload_parity':True});print('FINAL_FIT',name,flush=True)
+    w=selection['blend_catboost_weight'];candidate={p:w*probs[selection['best_catboost']][p]+(1-w)*probs[selection['best_lightgbm']][p] for p in ['calibration','validation','test']}
+    raw={'reference_v1':probs['reference_v1'],'candidate_blend':candidate};results=[];cals={}
+    for name,pp in raw.items():
+        kind,obj,losses=choose_calibration(pp['calibration'],y[idx['calibration']],f.group.iloc[idx['calibration']].to_numpy());cals[name]={'kind':kind,'object':obj,'oof_losses':losses}
+        for part in ['validation','test']:
+            p=calibrated(kind,obj,pp[part]);assert np.isfinite(p).all() and ((p>=0)&(p<=1)).all()
+            selected=(name=='candidate_blend' and selection['selected_pipeline']=='blend') or (name=='reference_v1' and selection['selected_pipeline']=='reference_v1')
+            results.append({'model':name,'is_selected_pipeline':selected,'partition':'exposed_'+part,'calibration':kind,**metrics(y[idx[part]],p)})
+            pd.DataFrame({'ID':d.ID.iloc[idx[part]],'raw_probability':pp[part],'probability':p}).to_csv(OUT/f'{name}_{part}_predictions.csv',index=False)
+    joblib.dump({'models':bundles,'weight':w,'catboost':selection['best_catboost'],'lightgbm':selection['best_lightgbm'],'calibrators':cals,'selected_pipeline':selection['selected_pipeline'],'experiment':'experiment_v2','research_only':True},OUT/'models/pipeline.joblib')
+    write_json(OUT/'reference_results.json',{'results':results,'calibration':{n:{k:v for k,v in row.items() if k!='object'} for n,row in cals.items()},'fits':fitrecords,'selection_unchanged':True,'selection_sha256':hashlib.sha256((OUT/'selection.json').read_bytes()).hexdigest(),'evaluated_utc':pd.Timestamp.now(tz='UTC').isoformat(),'no_unbiased_test_claim':True});pd.DataFrame(results).to_csv(OUT/'reference_metrics.csv',index=False);print(pd.DataFrame(results).to_string(index=False),flush=True)
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('stage',choices=['prepare','cv','select','finalize']);args=p.parse_args();globals()[args.stage]()

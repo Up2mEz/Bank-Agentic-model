@@ -1,0 +1,137 @@
+{
+  "experiment": "experiment_v2",
+  "created_utc": "2026-10-04T13:37:20.451876+00:00",
+  "seed": 20261005,
+  "task": "Same within-cohort dataset-label research, non-commercial",
+  "candidate_grid": [
+    {
+      "name": "reference_v1",
+      "family": "catboost",
+      "variant": "behavior",
+      "params": {
+        "depth": 4,
+        "iterations": 600,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5
+      }
+    },
+    {
+      "name": "trajectory_fixed",
+      "family": "catboost",
+      "variant": "trajectory",
+      "params": {
+        "depth": 4,
+        "iterations": 600,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5
+      }
+    },
+    {
+      "name": "trajectory_d4_long",
+      "family": "catboost",
+      "variant": "trajectory",
+      "params": {
+        "depth": 4,
+        "iterations": 1200,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10
+      }
+    },
+    {
+      "name": "trajectory_d5",
+      "family": "catboost",
+      "variant": "trajectory",
+      "params": {
+        "depth": 5,
+        "iterations": 1000,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10
+      }
+    },
+    {
+      "name": "trajectory_d6",
+      "family": "catboost",
+      "variant": "trajectory",
+      "params": {
+        "depth": 6,
+        "iterations": 1000,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 20
+      }
+    },
+    {
+      "name": "trajectory_ordered",
+      "family": "catboost",
+      "variant": "trajectory",
+      "params": {
+        "depth": 4,
+        "iterations": 800,
+        "learning_rate": 0.04,
+        "l2_leaf_reg": 10,
+        "boosting_type": "Ordered"
+      }
+    },
+    {
+      "name": "trajectory_no_demo",
+      "family": "catboost",
+      "variant": "trajectory_no_demographics",
+      "params": {
+        "depth": 4,
+        "iterations": 1200,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10
+      }
+    },
+    {
+      "name": "lightgbm_trajectory_15",
+      "family": "lightgbm",
+      "variant": "trajectory",
+      "params": {
+        "num_leaves": 15,
+        "n_estimators": 700,
+        "learning_rate": 0.025,
+        "min_child_samples": 100,
+        "reg_lambda": 10.0,
+        "colsample_bytree": 0.9
+      }
+    },
+    {
+      "name": "lightgbm_trajectory_31",
+      "family": "lightgbm",
+      "variant": "trajectory",
+      "params": {
+        "num_leaves": 31,
+        "n_estimators": 700,
+        "learning_rate": 0.025,
+        "min_child_samples": 100,
+        "reg_lambda": 10.0,
+        "colsample_bytree": 0.9
+      }
+    }
+  ],
+  "selection": "Minimum raw group-OOF log loss on original fit16500; all nine candidates fixed before fit; selected score optimistic, not unbiased",
+  "cv": "3-fold StratifiedGroupKFold on original fit only; fixed iterations, no early stopping or best-model selection on outer held-out fold",
+  "blending": "Best CatBoost and best LightGBM by same OOF log loss; fixed CatBoost weights [0,.25,.5,.75,1], choose minimum OOF loss. Includes endpoint models.",
+  "promotion_gate": "OOF logloss improvement at least .001 vs reference, every fold logloss better, and OOF Brier no worse. Descriptive gate, not significance or generalization proof.",
+  "final_fit": "Original fit16500, same as round1; no extra validation rows added",
+  "calibration": "Identity/sigmoid/isotonic via 5-fold group OOF inside original calibration4500, already reused; no independence claim",
+  "references": "Original validation4500 and test4500 both exposed. Evaluate once after frozen OOF selection; no retuning. Never label these new holdout.",
+  "feature_notes": {
+    "positive_codes": "Only positive documented months-of-delay codes contribute to summaries. Zero/negative original codes remain separate categorical predictors; assigning zero contribution does not label these codes paid/current.",
+    "ratios": "Same-month amount ratios are numeric summaries; no claim of matched bill settlement, balance rollover, cumulative debt or minimum-payment obligation.",
+    "slopes": "Six equally spaced historical monthly snapshots ordered oldest to latest; linear summary divided by positive limit, with raw amount predictors retained.",
+    "negative_bills": "Preserved, not automatically error or inferred refund/overpayment. Nonpositive-denominator ratios missing plus original flags.",
+    "demographics": "A sensitivity ablation drops SEX, EDUCATION, MARRIAGE and AGE; not a proof of fairness or an underwriting policy."
+  },
+  "thread_budget": "2 concurrent candidate jobs, 2 CPU threads/model; TabPFN separate local CPU job, explicit timings not controlled throughput benchmark",
+  "auxiliary": "TabPFN3.5 4000 context, 2 estimators, same val400/cal600/test4500 as old1000. CatBoost fixed depth6/l2=5/600trees/.05 on same4000 comparator; no hyperparameter tuning or model selection on oldtest",
+  "stop_rule": "No new candidates after grid; retain all failures; no extra tuning if promotion gate fails",
+  "sha256": {
+    "outputs\\experiment_v1\\protocol.json": "2c04f4317796beef8eb53a7c84c8d24830cbb6e6a8639fd646656ee4434d8bbf",
+    "outputs\\experiment_v1\\splits.csv": "8e2f2eb455404c5b822664ecfcf31afe134cfc056cac1caf5761035968b682f9",
+    "outputs\\experiment_v1\\selection.json": "e264224402aa3bc67d16e27b2f729ea0bb1c50ec84ae26cdc761f37da8feb072",
+    "outputs\\experiment_v1\\test_results.json": "d2667a6f7dcc2589de927697d3de42ec925a5d39de8ba3f0e48aae937c383072",
+    "scripts\\credit_features_v2.py": "204ea0bb54a4e7bf01352f8c5792d179b3ccdf560c71a065861cb4edb599c813",
+    "data\\raw\\kaggle_credit_card\\UCI_Credit_Card.csv": "a0f0ab49d6326671d6cd83be5c88dcf18007025fe9a53ecd699119c871176ca1"
+  }
+}

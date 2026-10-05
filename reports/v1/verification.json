@@ -1,0 +1,9 @@
+{
+  "cross_source_numeric_cell_parity": "passed for UCI CSV + original XLS + Kaggle CSV",
+  "id_and_exact_predictor_group_separation": "passed",
+  "all_partitions_disjoint": "passed",
+  "all_main_artifact_reload_parity": "passed",
+  "probability_domain": "passed",
+  "demo_vs_saved_test_predictions": "passed",
+  "preselected_champion_preserved": "passed"
+}

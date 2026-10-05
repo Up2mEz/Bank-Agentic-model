@@ -1,0 +1,446 @@
+Review supplied code only. NO TOOLS: no workspace reads, shell, network, edits or other actions. Do not claim tests or dataset audits. Find concrete correctness bugs, leakage, schema/scoring/order errors and reproducibility failures, prioritize by severity, cite supplied file/line. Distinguish untested suggestions from demonstrated bugs. Explain in Thai. Do not invent columns or category meanings.
+
+Context: development research only, all original partitions exposed. Current protocol froze before fitting. 3 outer group folds, 3 inner group folds select 2 CatBoost configs by mean inner Logloss with early stopping max2000/patience100; median chosen best tree counts refit outer training, NO outer eval_set. Fixed blend .75/.25 with SHA-verified saved V2 LightGBM OOF from identical folds/features. Gate gain>=.001/allfolds improve/Brier no worse/quietLLdelta<=.001; if fail, keep V2. Final fit repeats same inner algorithm on original fit with predefined seed, calibration only on originalcal4500, references oldval/test descriptive only. Historical adaptivity remains; no unbiased generalization or production claim.
+All23 raw predictors finite, categorical integer; retain unknown codes. make_features constructs only PREDICTORS and matched legacy68 columns exactly all30k cells, target/ID excluded. Nested fitter receives outer-training features/targets/groups only. Existing immutable V1/V2 scripts retained; maintained package new. Files/predictions exported as byte-preserved snapshots. Review below independent of outcome, do not add candidates based on scores.
+
+
+FILE src/creditrisk/nested.py
+"""Inner-only depth/iteration selection; outer labels never enter this fitter."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+
+from .metrics import probability_metrics
+from .models import catboost_model
+from .splits import group_folds
+
+
+@dataclass(frozen=True)
+class SearchPolicy:
+    candidates: tuple[dict, ...]
+    max_iterations: int = 2000
+    patience: int = 100
+    inner_folds: int = 3
+    model_seed: int = 20261005
+    split_seed: int = 20261006
+    threads: int = 2
+
+
+DEFAULT_POLICY = SearchPolicy(
+    candidates=(
+        {"name": "depth4", "depth": 4, "learning_rate": 0.03, "l2_leaf_reg": 10},
+        {"name": "depth6", "depth": 6, "learning_rate": 0.03, "l2_leaf_reg": 20},
+    )
+)
+
+
+def nested_fit(features: pd.DataFrame, target, groups, policy: SearchPolicy):
+    """Search inside supplied training data, then refit all supplied rows.
+
+    The median of the chosen candidate's inner best tree counts fixes refit
+    iterations. This is a predefined training-size heuristic, not an optimality
+    guarantee. No outer evaluation set is supplied to the refit.
+    """
+    target = np.asarray(target)
+    groups = np.asarray(groups)
+    folds = group_folds(target, groups, count=policy.inner_folds, seed=policy.split_seed)
+    records = []
+    for config in policy.candidates:
+        diagnostics = []
+        for fold, (train, hold) in enumerate(folds):
+            model = catboost_model(
+                config,
+                iterations=policy.max_iterations,
+                seed=policy.model_seed,
+                threads=policy.threads,
+            )
+            model.fit(
+                features.iloc[train],
+                target[train],
+                eval_set=(features.iloc[hold], target[hold]),
+                early_stopping_rounds=policy.patience,
+                use_best_model=True,
+            )
+            trees = int(model.get_best_iteration()) + 1
+            if not 1 <= trees <= policy.max_iterations or model.tree_count_ != trees:
+                raise ValueError("Unexpected best-iteration/tree-count mismatch.")
+            p = model.predict_proba(features.iloc[hold])[:, 1]
+            diagnostics.append(
+                {
+                    "fold": fold,
+                    "train_rows": len(train),
+                    "hold_rows": len(hold),
+                    "best_iterations": trees,
+                    "metrics": probability_metrics(target[hold], p),
+                    "training_groups": len(np.unique(groups[train])),
+                    "heldout_groups": len(np.unique(groups[hold])),
+                    "groups_disjoint": True,
+                }
+            )
+        records.append(
+            {
+                "config": config,
+                "folds": diagnostics,
+                "mean_inner_log_loss": float(
+                    np.mean([d["metrics"]["log_loss"] for d in diagnostics])
+                ),
+            }
+        )
+    chosen = min(records, key=lambda record: record["mean_inner_log_loss"])
+    iterations = int(np.median([record["best_iterations"] for record in chosen["folds"]]))
+    refitted = catboost_model(
+        chosen["config"], iterations=iterations, seed=policy.model_seed, threads=policy.threads
+    )
+    refitted.fit(features, target)
+    if refitted.tree_count_ != iterations:
+        raise ValueError("Refit did not use the frozen inner-derived iteration budget.")
+    return refitted, {
+        "selected_config": chosen["config"],
+        "refit_iterations": iterations,
+        "inner_search": records,
+        "fit_rows": len(target),
+        "no_outer_eval_set": True,
+    }
+
+
+FILE src/creditrisk/models.py
+"""Model adapters centralize categorical handling and inference contracts."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+import numpy as np
+import pandas as pd
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+
+from .calibration import Calibrator
+from .features import make_features
+from .metrics import valid_probabilities
+from .schema import CATEGORIES, TARGET, validate_predictors
+
+
+def catboost_model(config: dict, *, iterations: int, seed: int, threads: int):
+    return CatBoostClassifier(
+        depth=config["depth"],
+        l2_leaf_reg=config["l2_leaf_reg"],
+        iterations=iterations,
+        learning_rate=config["learning_rate"],
+        loss_function="Logloss",
+        eval_metric="Logloss",
+        cat_features=list(CATEGORIES),
+        random_seed=seed,
+        thread_count=threads,
+        verbose=False,
+        allow_writing_files=False,
+    )
+
+
+def lightgbm_model(*, seed: int, threads: int):
+    return LGBMClassifier(
+        num_leaves=15,
+        n_estimators=700,
+        learning_rate=0.025,
+        min_child_samples=100,
+        reg_lambda=10.0,
+        colsample_bytree=0.9,
+        random_state=seed,
+        n_jobs=threads,
+        verbosity=-1,
+    )
+
+
+def categorical_input(features: pd.DataFrame, categories: dict | None = None) -> pd.DataFrame:
+    result = features.copy()
+    for column in CATEGORIES:
+        if column not in features:
+            continue
+        if categories is None:
+            result[column] = pd.Categorical(features[column])
+        else:
+            values = features[column].where(features[column].isin(categories[column]), np.nan)
+            result[column] = pd.Categorical(values, categories=categories[column])
+    return result
+
+
+@dataclass
+class Component:
+    family: str
+    estimator: object
+    columns: list[str]
+    variant: str = "trajectory"
+    categories: dict = field(default_factory=dict)
+
+    def predict(self, features: pd.DataFrame) -> np.ndarray:
+        x = features.loc[:, self.columns]
+        if self.family == "lightgbm":
+            x = categorical_input(x, self.categories)
+        elif self.family != "catboost":
+            raise ValueError(f"Unsupported model family: {self.family}")
+        return valid_probabilities(self.estimator.predict_proba(x)[:, 1], size=len(x))
+
+
+@dataclass
+class CreditPipeline:
+    components: list[Component]
+    weights: list[float]
+    calibrator: Calibrator = field(default_factory=Calibrator)
+    version: str = "development"
+    schema_version: int = 1
+
+    def predict(self, rows: pd.DataFrame) -> pd.DataFrame:
+        if self.schema_version != 1:
+            raise ValueError("Unsupported pipeline schema version.")
+        if not self.components or len(self.components) != len(self.weights):
+            raise ValueError("Pipeline requires one weight per component.")
+        weights = np.asarray(self.weights, dtype=float)
+        if (
+            not np.isfinite(weights).all()
+            or (weights < 0).any()
+            or not np.isclose(weights.sum(), 1)
+        ):
+            raise ValueError("Pipeline weights must be nonnegative and sum to one.")
+        clean = validate_predictors(rows)
+        variants = {
+            item.variant for item, weight in zip(self.components, weights, strict=True) if weight
+        }
+        features = {variant: make_features(clean, variant) for variant in variants}
+        raw = np.zeros(len(clean))
+        for item, weight in zip(self.components, weights, strict=True):
+            if weight:
+                raw += weight * item.predict(features[item.variant])
+        raw = valid_probabilities(raw, size=len(clean))
+        return pd.DataFrame(
+            {
+                "input_row_position": np.arange(len(clean)),
+                "model_version": self.version,
+                "raw_probability": raw,
+                "calibrated_probability": self.calibrator.predict(raw),
+                "target": TARGET,
+                "purpose": "Development research; no lending decision",
+            },
+            index=rows.index,
+        )
+
+
+FILE src/creditrisk/schema.py
+"""Dataset contracts shared by training, exploration and inference."""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+
+TARGET = "default.payment.next.month"
+PAY_CODES = ("PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6")
+CATEGORIES = ("SEX", "EDUCATION", "MARRIAGE", *PAY_CODES)
+DEMOGRAPHICS = ("SEX", "EDUCATION", "MARRIAGE", "AGE")
+BILLS = tuple(f"BILL_AMT{i}" for i in range(1, 7))
+PAYMENTS = tuple(f"PAY_AMT{i}" for i in range(1, 7))
+PREDICTORS = ("LIMIT_BAL", "SEX", "EDUCATION", "MARRIAGE", "AGE", *PAY_CODES, *BILLS, *PAYMENTS)
+
+
+def validate_predictors(rows: pd.DataFrame) -> pd.DataFrame:
+    """Require the original 23 columns, preserve rows, and retain unknown integer codes.
+
+    Out-of-distribution category codes are accepted as nominal values. Dataset
+    semantics do not justify invented relabeling or rejecting negative bills.
+    """
+    if rows.empty:
+        raise ValueError("At least one input row is required.")
+    if not rows.columns.is_unique or set(rows.columns) != set(PREDICTORS):
+        raise ValueError("Exactly 23 unique original predictors required; exclude ID and target.")
+    clean = rows.loc[:, PREDICTORS].copy()
+    if not all(pd.api.types.is_numeric_dtype(dtype) for dtype in clean.dtypes):
+        raise ValueError("Predictors must be numeric, not string or object values.")
+    if not np.isfinite(clean.to_numpy(dtype=float)).all():
+        raise ValueError("All original predictor values must be finite.")
+    integer_values = clean.loc[:, (*CATEGORIES, "AGE")].to_numpy(dtype=float)
+    if not np.equal(integer_values, np.floor(integer_values)).all():
+        raise ValueError("Category codes and AGE must be integers.")
+    return clean
+
+
+def load_dataset(path) -> pd.DataFrame:
+    """Read a complete labeled snapshot without silently coercing the target."""
+    rows = pd.read_csv(path)
+    if not rows.columns.is_unique or set(rows) != {"ID", TARGET, *PREDICTORS}:
+        raise ValueError("Dataset schema does not match the UCI/Kaggle credit-card snapshot.")
+    validate_predictors(rows.loc[:, PREDICTORS])
+    if rows.ID.isna().any() or not rows.ID.is_unique:
+        raise ValueError("Dataset IDs must be present and unique.")
+    if rows[TARGET].isna().any() or set(rows[TARGET]) != {0, 1}:
+        raise ValueError("Dataset target must contain both binary classes, 0 and 1.")
+    return rows
+
+
+src/creditrisk/experiment.py:96
+def load_inputs(root: Path, output: Path):
+    protocol = read_json(output / "protocol.json")
+    verify_hashes(root, protocol["hashes"])
+    data_path, folds_path, baseline_path, lightgbm_path = paths_from(root, protocol)
+    rows = load_dataset(data_path)
+    folds = pd.read_csv(folds_path, dtype={"group": str})
+    validate_assignment(rows, folds)
+    fit = np.flatnonzero(folds.original_partition == "fit")
+    baseline, lightgbm = pd.read_csv(baseline_path), pd.read_csv(lightgbm_path)
+    for frame in (baseline, lightgbm):
+        if not np.array_equal(frame.ID, rows.ID.iloc[fit]):
+            raise ValueError("Frozen OOF IDs or row order differ from fit partition.")
+    valid_probabilities(baseline.candidate, size=len(fit))
+    valid_probabilities(lightgbm.probability, size=len(fit))
+    if not np.array_equal(baseline.fold, folds.cv_fold.iloc[fit]):
+        raise ValueError("Baseline OOF fold assignment changed.")
+    if set(folds.cv_fold.iloc[fit]) != set(range(protocol["outer_folds"])):
+        raise ValueError("Unexpected outer fold numbers.")
+    return protocol, rows, folds, fit, baseline, lightgbm
+
+src/creditrisk/experiment.py:117
+def run_outer_fold(root: Path, output: Path, fold: int) -> dict:
+    record_path = output / "cv" / f"fold_{fold}.json"
+    predictions_path = output / "cv" / f"fold_{fold}.csv"
+    if record_path.exists() or predictions_path.exists():
+        raise FileExistsError(f"Outer fold {fold} already has artifacts; refuse silent reuse.")
+    protocol, rows, folds, fit, _, lightgbm = load_inputs(root, output)
+    cv_folds = folds.cv_fold.iloc[fit].to_numpy()
+    train, hold = fit[cv_folds != fold], fit[cv_folds == fold]
+    disjoint_groups(folds.group.to_numpy(), train, hold)
+    features = make_features(rows)
+    target = rows[TARGET].to_numpy()
+    started = time.perf_counter()
+    model, search = nested_fit(
+        features.iloc[train],
+        target[train],
+        folds.group.iloc[train].to_numpy(),
+        policy_from(protocol, fold=fold),
+    )
+    cat_probability = model.predict_proba(features.iloc[hold])[:, 1]
+    frozen_lightgbm = lightgbm.probability.to_numpy()[cv_folds == fold]
+    candidate = CAT_WEIGHT * cat_probability + (1 - CAT_WEIGHT) * frozen_lightgbm
+    record = {
+        "fold": fold,
+        "train_rows": len(train),
+        "hold_rows": len(hold),
+        "search": search,
+        "metrics": probability_metrics(target[hold], candidate),
+        "catboost_only_metrics": probability_metrics(target[hold], cat_probability),
+        "outer_groups_disjoint": True,
+        "seconds": time.perf_counter() - started,
+    }
+    predictions_path.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        {
+            "ID": rows.ID.iloc[hold],
+            "catboost_probability": cat_probability,
+            "probability": candidate,
+        }
+    ).to_csv(predictions_path, index=False)
+    write_json(record_path, record, exclusive=True)
+    print(
+        f"OUTER fold={fold} depth={search['selected_config']['depth']} "
+        f"trees={search['refit_iterations']} log_loss={record['metrics']['log_loss']:.6f}",
+        flush=True,
+    )
+    return record
+
+src/creditrisk/experiment.py:183
+def select(root: Path, output: Path) -> dict:
+    if (output / "selection.json").exists():
+        raise FileExistsError("Gate selection already frozen.")
+    protocol, rows, folds, fit, baseline, lightgbm = load_inputs(root, output)
+    candidate = np.empty(len(fit))
+    cat_only = np.empty(len(fit))
+    cv_folds = folds.cv_fold.iloc[fit].to_numpy()
+    diagnostics = []
+    for fold in range(protocol["outer_folds"]):
+        hold = cv_folds == fold
+        saved = pd.read_csv(output / "cv" / f"fold_{fold}.csv")
+        if not np.array_equal(saved.ID, rows.ID.iloc[fit[hold]]):
+            raise ValueError("Outer OOF prediction IDs/order changed.")
+        candidate[hold], cat_only[hold] = saved.probability, saved.catboost_probability
+        expected = (
+            CAT_WEIGHT * cat_only[hold] + (1 - CAT_WEIGHT) * lightgbm.probability.to_numpy()[hold]
+        )
+        if not np.allclose(candidate[hold], expected, rtol=1e-12, atol=1e-12):
+            raise ValueError("Candidate does not match the frozen blend recipe.")
+        diagnostics.append(read_json(output / "cv" / f"fold_{fold}.json"))
+    target = rows[TARGET].to_numpy()[fit]
+    reference = baseline.candidate.to_numpy()
+    candidate_metrics = probability_metrics(target, candidate)
+    reference_metrics = probability_metrics(target, reference)
+    fold_deltas = [
+        probability_metrics(target[cv_folds == k], candidate[cv_folds == k])["log_loss"]
+        - probability_metrics(target[cv_folds == k], reference[cv_folds == k])["log_loss"]
+        for k in range(protocol["outer_folds"])
+    ]
+    quiet = rows.loc[:, PAY_CODES].iloc[fit].le(0).all(axis=1).to_numpy()
+    quiet_delta = (
+        probability_metrics(target[quiet], candidate[quiet])["log_loss"]
+        - probability_metrics(target[quiet], reference[quiet])["log_loss"]
+    )
+    gain = reference_metrics["log_loss"] - candidate_metrics["log_loss"]
+    checks = {
+        "minimum_gain": gain >= protocol["promotion_gate"]["minimum_pooled_log_loss_gain"],
+        "all_folds_improve": all(delta < 0 for delta in fold_deltas),
+        "brier_not_worse": candidate_metrics["brier"] <= reference_metrics["brier"],
+        "quiet_segment_not_materially_worse": quiet_delta
+        <= protocol["promotion_gate"]["max_quiet_segment_log_loss_increase"],
+    }
+    passed = all(checks.values())
+    result = {
+        "selected_utc": utc_now(),
+        "gate_passed": passed,
+        "gate_checks": checks,
+        "selected_pipeline": "v3_nested" if passed else "v2_retained",
+        "log_loss_gain": gain,
+        "candidate_oof": candidate_metrics,
+        "baseline_v2_oof": reference_metrics,
+        "fold_log_loss_deltas": fold_deltas,
+        "quiet_segment_log_loss_delta": quiet_delta,
+        "outer_search": diagnostics,
+        "protocol_sha256": sha256(output / "protocol.json"),
+        "interpretation": "Nested search keeps outer labels outside current training selection. Previous data/feature/model selection and promotion remain adaptive; descriptive within-cohort evidence only.",
+    }
+    pd.DataFrame(
+        {
+            "ID": rows.ID.iloc[fit],
+            "fold": cv_folds,
+            "reference": reference,
+            "candidate": candidate,
+            "catboost_only": cat_only,
+        }
+    ).to_csv(output / "oof.csv", index=False)
+    write_json(output / "selection.json", result, exclusive=True)
+    return result
+
+src/creditrisk/calibration.py:38
+def fit_calibrator(kind: str, probability, target) -> Calibrator:
+    if kind == "identity":
+        return Calibrator()
+    if kind == "sigmoid":
+        estimator = LogisticRegression(C=1e6, max_iter=1000).fit(logit(probability), target)
+    elif kind == "isotonic":
+        estimator = IsotonicRegression(out_of_bounds="clip").fit(probability, target)
+    else:
+        raise ValueError(f"Unsupported calibrator: {kind}")
+    return Calibrator(kind, estimator)
+
+src/creditrisk/calibration.py:50
+def select_calibrator(probability, target, groups, *, seed: int) -> tuple[Calibrator, dict]:
+    raw = valid_probabilities(probability, size=len(target))
+    target = np.asarray(target)
+    folds = group_folds(target, groups, count=5, seed=seed)
+    scores = {}
+    for kind in ("identity", "sigmoid", "isotonic"):
+        oof = np.empty(len(target))
+        for train, hold in folds:
+            fitted = fit_calibrator(kind, raw[train], target[train])
+            oof[hold] = fitted.predict(raw[hold])
+        scores[kind] = probability_metrics(target, oof)["log_loss"]
+    selected = min(scores, key=scores.get)
+    return fit_calibrator(selected, raw, target), scores

@@ -1,0 +1,67 @@
+{
+  "trials": [
+    {
+      "model": "tabpfn_3_5_4000",
+      "status": "ok",
+      "context_rows": 4000,
+      "validation_rows": 400,
+      "calibration_rows": 600,
+      "test_rows": 4500,
+      "actual_version": "v3.5",
+      "calibration": "identity",
+      "calibration_oof_losses": {
+        "identity": 0.429438055428117,
+        "sigmoid": 0.43043517239684076,
+        "isotonic": 0.47561721021666564
+      },
+      "validation": {
+        "roc_auc": 0.8470320459554175,
+        "average_precision": 0.7144203286057714,
+        "log_loss": 0.37125110626220703,
+        "brier": 0.11127655953168869
+      },
+      "exposed_test_reference": {
+        "roc_auc": 0.7816285421400869,
+        "average_precision": 0.5369872748416946,
+        "log_loss": 0.43268924951553345,
+        "brier": 0.1364051103591919
+      },
+      "fit_preprocessing_calibration_seconds": 262.9226869000122,
+      "test_batch_seconds": 970.4896063000197
+    },
+    {
+      "model": "catboost_4000",
+      "status": "ok",
+      "context_rows": 4000,
+      "validation_rows": 400,
+      "calibration_rows": 600,
+      "test_rows": 4500,
+      "actual_version": "fixed_catboost_depth6",
+      "calibration": "sigmoid",
+      "calibration_oof_losses": {
+        "identity": 0.4516069353824137,
+        "sigmoid": 0.4433293574933176,
+        "isotonic": 0.510616342645115
+      },
+      "validation": {
+        "roc_auc": 0.8602911954911665,
+        "average_precision": 0.670109864175178,
+        "log_loss": 0.3811455300888732,
+        "brier": 0.11650083978636788
+      },
+      "exposed_test_reference": {
+        "roc_auc": 0.7664669997634391,
+        "average_precision": 0.5177579328813363,
+        "log_loss": 0.44238175228408544,
+        "brier": 0.13989938416670142
+      },
+      "fit_preprocessing_calibration_seconds": 78.2547409000108,
+      "test_batch_seconds": 0.07451329997275025
+    }
+  ],
+  "same_val_cal_test_as_1000": true,
+  "nested_1000_context": true,
+  "no_unbiased_test_claim": true,
+  "main_selection_not_changed_by_auxiliary": true,
+  "subset_sha256": "d9d16a23e32382ba96cf38967d898f19ba2247198401de715358d85a0ccf3f74"
+}

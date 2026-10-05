@@ -1,0 +1,88 @@
+{
+  "legacy_v1_metrics": {
+    "roc_auc": 0.7860757424784407,
+    "average_precision": 0.5421180427489984,
+    "log_loss": 0.42899274338807525,
+    "brier": 0.135412520706574,
+    "model": "catboost_behavior",
+    "track": "main",
+    "gini": 0.5721514849568814,
+    "calibration_intercept": -0.04910185993196392,
+    "calibration_slope": 0.971001170250493
+  },
+  "paired_bootstrap_95_difference_intervals": {
+    "selected_oof_minus_cv_reference": {
+      "roc_auc": [
+        0.0006029147704917831,
+        0.005312654169412372
+      ],
+      "average_precision": [
+        -0.0020237140400120894,
+        0.009347396319644655
+      ],
+      "log_loss": [
+        -0.003481029704837765,
+        -0.0005172233110421171
+      ],
+      "brier": [
+        -0.001005293452566166,
+        0.00011417955551581653
+      ]
+    },
+    "exposed_validation_candidate_minus_legacy_v1": {
+      "roc_auc": [
+        -0.002292295386644827,
+        0.005255961685106953
+      ],
+      "average_precision": [
+        -0.0026672454710237044,
+        0.01986954267389722
+      ],
+      "log_loss": [
+        -0.0053637068181251555,
+        0.00028465266455491537
+      ],
+      "brier": [
+        -0.001959369842502985,
+        5.05094066591638e-05
+      ]
+    },
+    "exposed_test_candidate_minus_legacy_v1": {
+      "roc_auc": [
+        -0.0036898008662158838,
+        0.005365315356743996
+      ],
+      "average_precision": [
+        -0.005512415131209472,
+        0.015221040859382234
+      ],
+      "log_loss": [
+        -0.005146177543256578,
+        0.001076061739963357
+      ],
+      "brier": [
+        -0.002035938977300739,
+        0.00010826015083779414
+      ]
+    }
+  },
+  "bootstrap_replicates": 300,
+  "bootstrap_unit": "exact predictor-vector group",
+  "interval_scope": "Descriptive conditional on selected pipeline; does not account for model selection, overlapping-fold training dependence, or prior exposure. Not independent significance evidence.",
+  "selected_pipeline": "blend",
+  "gate_passed": true,
+  "candidate_recall70_threshold": 0.2049416041041888,
+  "reference_seed_note": "CV reference uses same recipe as v1 but common v2 seed20261005; legacy v1 artifact has seed20261004. Report both anchors rather than silently equating weights.",
+  "verification": {
+    "v1_artifacts_and_data_hashes_unchanged": true,
+    "all_nine_oof_same_ids_finite_probabilities": true,
+    "cv_groups_disjoint": true,
+    "id_target_excluded_from_features": true,
+    "single_row_batch_feature_parity": true,
+    "no_demographics_variant_excludes_four_columns": true,
+    "pipeline_reload_scoring_prediction_parity": true,
+    "auxiliary_ids_probabilities_and_recomputed_metrics_match": true,
+    "selection_frozen_before_reference_evaluation": true,
+    "references_are_exposed": true
+  }
+}

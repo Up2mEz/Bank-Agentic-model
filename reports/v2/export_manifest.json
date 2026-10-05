@@ -1,0 +1,86 @@
+{
+  "exported_utc": "2026-10-05T07:11:43.093100+00:00",
+  "files": [
+    {
+      "source": "outputs/experiment_v2/REPORT_TH.md",
+      "export": "REPORT_TH.md",
+      "sha256": "699731e7fa412acd330206ceb1e21b7b5a78f748adab1352ec86ecf54e8f4fa7"
+    },
+    {
+      "source": "outputs/experiment_v2/protocol.json",
+      "export": "protocol.json",
+      "sha256": "6f7f4a2a19636632832ea506b67d2837cf1a942a26a2c1b1d323c9d61e394af5"
+    },
+    {
+      "source": "outputs/experiment_v2/selection.json",
+      "export": "selection.json",
+      "sha256": "7f0abe8b77c7df993041d62dc432c210fb483580ed8992f09c63efe6e31c712e"
+    },
+    {
+      "source": "outputs/experiment_v2/analysis.json",
+      "export": "analysis.json",
+      "sha256": "c1a97985a6f8a5a05c3235e8c10d812788b78305eed16bec1a9eb5887df5a43e"
+    },
+    {
+      "source": "outputs/experiment_v2/reference_metrics.csv",
+      "export": "reference_metrics.csv",
+      "sha256": "f6b8642b8a083b19822f72f2c5a8ef859e1593d2e2ae41ed6350e979b8ce7ef2"
+    },
+    {
+      "source": "outputs/experiment_v2/reference_results.json",
+      "export": "reference_results.json",
+      "sha256": "d7f30713bb2faebb11c992a20703d787985781a087cfd7575c87d215941df003"
+    },
+    {
+      "source": "outputs/experiment_v2/failure_followup.json",
+      "export": "failure_followup.json",
+      "sha256": "a73c37b1bb778ff80f351dbdaa6e18f88c3b562e1ef3cc7603ecfb7f66b653f5"
+    },
+    {
+      "source": "outputs/experiment_v2/failure_slices_comparison.csv",
+      "export": "failure_slices_comparison.csv",
+      "sha256": "9abf86906defedb491319e8711bfeebc1deeb6678e7bda365958d5cf916d22c9"
+    },
+    {
+      "source": "outputs/experiment_v2/capacity_comparison.csv",
+      "export": "capacity_comparison.csv",
+      "sha256": "dde14ba05196b147da22e607a9f077fe44c68ff79e52d35b4339f2058fc4c1a9"
+    },
+    {
+      "source": "outputs/experiment_v2/threshold_comparison.csv",
+      "export": "threshold_comparison.csv",
+      "sha256": "84d8b10d1f4c0ef31cd69067d54c493455fe0d348d485e3f69c57533e4bbcd2b"
+    },
+    {
+      "source": "outputs/experiment_v2/learning_curve_diagnostics.csv",
+      "export": "learning_curve_diagnostics.csv",
+      "sha256": "b476015d30665f5682cf640ef0a3b18cc66f7bf00b5f34b3ce430ffc470e033e"
+    },
+    {
+      "source": "outputs/experiment_v2/development_diagnostics.png",
+      "export": "development_diagnostics.png",
+      "sha256": "ce42332a5a212f1919b1f53e47298513699ccd4f8d55c964eeb512df5c596e04"
+    },
+    {
+      "source": "outputs/experiment_v2/tabpfn_4000_results.json",
+      "export": "tabpfn_4000_results.json",
+      "sha256": "6b4d5ef9dc63955e3d11edbb18f3f3b10c42a93d829dba6d391c6fb30a036315"
+    },
+    {
+      "source": "outputs/experiment_v2/folds.csv",
+      "export": "folds.csv",
+      "sha256": "b21ed08bef4ab3f2230a4dcdbfa8a0214337730ab409da293925d6b7383ccefe"
+    },
+    {
+      "source": "outputs/experiment_v2/selected_oof.csv",
+      "export": "selected_oof.csv",
+      "sha256": "f9cb4d30c7b4bfaf6381a451ed5d13d373609e741a5ef4520e07dda5e1dd7c12"
+    },
+    {
+      "source": "outputs/experiment_v2/cv/lightgbm_trajectory_15/oof.csv",
+      "export": "lightgbm_oof.csv",
+      "sha256": "94399eddfc9a5897318c8b3484609b8f53198d15989e8062b56607a649d3ba49"
+    }
+  ],
+  "data_attribution": "Derived from Yeh (2009), UCI Default of Credit Card Clients, CC BY 4.0; exact-vector groups are not verified borrower identities."
+}

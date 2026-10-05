@@ -1,0 +1,74 @@
+{
+  "experiment": "experiment_v3",
+  "created_utc": "2026-10-05T07:15:18.492263+00:00",
+  "paths": {
+    "data": "data/raw/kaggle_credit_card/UCI_Credit_Card.csv",
+    "folds": "reports/v2/folds.csv",
+    "baseline_oof": "reports/v2/selected_oof.csv",
+    "lightgbm_oof": "reports/v2/lightgbm_oof.csv"
+  },
+  "hashes": {
+    "data/raw/kaggle_credit_card/UCI_Credit_Card.csv": "a0f0ab49d6326671d6cd83be5c88dcf18007025fe9a53ecd699119c871176ca1",
+    "reports/v2/folds.csv": "b21ed08bef4ab3f2230a4dcdbfa8a0214337730ab409da293925d6b7383ccefe",
+    "reports/v2/selected_oof.csv": "f9cb4d30c7b4bfaf6381a451ed5d13d373609e741a5ef4520e07dda5e1dd7c12",
+    "reports/v2/lightgbm_oof.csv": "94399eddfc9a5897318c8b3484609b8f53198d15989e8062b56607a649d3ba49",
+    "src/creditrisk/__init__.py": "430a18b5a9e0b8a536377874ed79ab455277549f19108b0f7e1bb8a998604785",
+    "src/creditrisk/artifacts.py": "9f9992b9a034319478c25f70da36a9768b959e52ca2ca2cfbd8c08f9b255869c",
+    "src/creditrisk/calibration.py": "7a178894356e549e5dcc36e71f74872a712dec995e1c3dbb0ec2a698badd503f",
+    "src/creditrisk/cli.py": "65d50ed1fe09309b353859d6ff169628b8c095599485ac954ee20c9945840473",
+    "src/creditrisk/experiment.py": "d2d5ddf309dcdff358e7190836ee042a108924b69c9febddea09910b55ba5c6c",
+    "src/creditrisk/exploration.py": "430b5052753e2df465c3d018ac56df35a5423372e18a1d17b90a4757f7f74e62",
+    "src/creditrisk/features.py": "8c9c3b805221ced7e7896d65b3fbbd4a6ea4d524d00988ebd2550e57e178278a",
+    "src/creditrisk/metrics.py": "faf9378bea66f3ccb6e1ac514b0c88d0b36bc7de321f6ebaae1edef85107e5b0",
+    "src/creditrisk/models.py": "2aaa2291ea47cf142f1ffa4cc05c6252278a2a786fe636a6cd4e4c2cf8a69b78",
+    "src/creditrisk/nested.py": "184aa5f145a2c1c02d22d3c1ddc764eaa7f609ebbe93b47fe22eed2c11d0ed3a",
+    "src/creditrisk/schema.py": "fdacf6ca76bfd7196c16a8c7630570ba572450436ecca0c2645c8134ba565579",
+    "src/creditrisk/splits.py": "03cf47799f746e0497efb0d8dd9105b9718f9439c2d763674dc42208df6d231a"
+  },
+  "search_policy": {
+    "candidates": [
+      {
+        "name": "depth4",
+        "depth": 4,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10
+      },
+      {
+        "name": "depth6",
+        "depth": 6,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 20
+      }
+    ],
+    "max_iterations": 2000,
+    "patience": 100,
+    "inner_folds": 3,
+    "model_seed": 20261005,
+    "split_seed": 20261006,
+    "threads": 2
+  },
+  "outer_folds": 3,
+  "outer_partition": "Original fit16500; identical to V2 outer folds",
+  "procedure": "3 inner group folds select depth and stopping iterations; median chosen inner tree counts; refit all outer-training rows with no evaluation set",
+  "candidate": "One adaptive procedure: inner-selected CatBoost plus fixed V2 LightGBM15, weights 0.75/0.25; no outer-fold weight search",
+  "comparison": "Frozen V2 winner OOF, previously selected on these folds. Both data and comparator have adaptive research history; no independent validation claim.",
+  "calibration": "Identity/sigmoid/isotonic by 5 group folds inside reused calibration4500 only; fit on all calibration after selection",
+  "promotion_gate": {
+    "minimum_pooled_log_loss_gain": 0.001,
+    "every_fold_log_loss_improves": true,
+    "pooled_brier_not_worse": true,
+    "max_quiet_segment_log_loss_increase": 0.001
+  },
+  "final_fit": "Original fit16500; repeat predefined inner procedure for final settings. Do not choose a depth or iteration from outer-fold outcomes.",
+  "references": "Original validation/test are exposed; descriptive evaluations after frozen gate; never retune or claim an unbiased new test.",
+  "stop_rule": "No extra candidates or tuning after outcomes; retain V2 if gate fails",
+  "cpu_budget": "2 simultaneous outer-fold jobs, 2 model threads each",
+  "features": "Exact V2 68-column trajectory recipe, including one known redundant ratio for parity",
+  "versions": {
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "lightgbm": "4.7.0"
+  }
+}

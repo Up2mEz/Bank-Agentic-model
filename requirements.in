@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+catboost
+lightgbm
+interpret-core
+tabpfn
+torch
+matplotlib
+joblib
+requests
+pyarrow
+xlrd

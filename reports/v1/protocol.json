@@ -1,0 +1,61 @@
+{
+  "experiment": "experiment_v1",
+  "seed": 20261004,
+  "created_utc": "2026-10-04T10:51:30.620238+00:00",
+  "task": "Within-cohort behavioral next-month dataset-label prediction; not regulatory 12-month PD",
+  "data_sha256": "a0f0ab49d6326671d6cd83be5c88dcf18007025fe9a53ecd699119c871176ca1",
+  "split_method": "20-fold StratifiedGroupKFold on identical predictor vectors; folds 0..10 fit,11..13 validation,14..16 calibration,17..19 final test",
+  "splits": {
+    "fit": {
+      "rows": 16500,
+      "events": 3649,
+      "prevalence": 0.22115151515151515
+    },
+    "validation": {
+      "rows": 4500,
+      "events": 996,
+      "prevalence": 0.22133333333333333
+    },
+    "calibration": {
+      "rows": 4500,
+      "events": 996,
+      "prevalence": 0.22133333333333333
+    },
+    "test": {
+      "rows": 4500,
+      "events": 995,
+      "prevalence": 0.22111111111111112
+    }
+  },
+  "categorical_features": [
+    "SEX",
+    "EDUCATION",
+    "MARRIAGE",
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6"
+  ],
+  "unknown_codes": "Preserve as distinct nominal levels; no guessed relabeling",
+  "feature_policy": "23 original benchmark predictors, including demographics for research only; no underwriting policy endorsement",
+  "tuning": "Three fixed settings each for Logistic/CatBoost/LightGBM; two EBM settings; validation raw log loss selects base settings",
+  "calibration": "Choose identity/sigmoid/isotonic by 5-fold group-aware out-of-fold calibration log loss, then fit calibrator on full calibration partition",
+  "champion": "Select MAIN calibrated pipeline by validation log loss AFTER calibration, before any final-test metric",
+  "feature_ablation": "CatBoost behavioral-ratio candidate uses selected raw CatBoost settings; predeclared candidate",
+  "auxiliary_tabpfn": "Try current V3.5; if authentication unavailable, explicitly report V2 separately. CPU subset 1000 fit/400 validation/600 calibration; compare CatBoost on identical subsets. Same final-test rows. Not a full-data rank comparison.",
+  "metrics": [
+    "ROC AUC",
+    "Average Precision (not trapezoidal PR AUC)",
+    "log loss",
+    "Brier",
+    "calibration intercept/slope",
+    "subgroup counts"
+  ],
+  "uncertainty": "300 group bootstrap replicates for preselected champion and paired differences against Logistic; descriptive intervals, not temporal evidence",
+  "final_test_policy": "One evaluation script invocation after pipeline selection; no champion reselection from test",
+  "cpu_threads": 4,
+  "no_smote_or_class_weights": true,
+  "production_ready": false
+}

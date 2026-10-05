@@ -1,0 +1,486 @@
+{
+  "rows": 30000,
+  "columns": 25,
+  "predictors": 23,
+  "source_value_mismatches": 0,
+  "source_dtype_differences": {
+    "LIMIT_BAL": [
+      "int64",
+      "float64"
+    ],
+    "BILL_AMT1": [
+      "int64",
+      "float64"
+    ],
+    "BILL_AMT2": [
+      "int64",
+      "float64"
+    ],
+    "BILL_AMT3": [
+      "int64",
+      "float64"
+    ],
+    "BILL_AMT4": [
+      "int64",
+      "float64"
+    ],
+    "BILL_AMT5": [
+      "int64",
+      "float64"
+    ],
+    "BILL_AMT6": [
+      "int64",
+      "float64"
+    ],
+    "PAY_AMT1": [
+      "int64",
+      "float64"
+    ],
+    "PAY_AMT2": [
+      "int64",
+      "float64"
+    ],
+    "PAY_AMT3": [
+      "int64",
+      "float64"
+    ],
+    "PAY_AMT4": [
+      "int64",
+      "float64"
+    ],
+    "PAY_AMT5": [
+      "int64",
+      "float64"
+    ],
+    "PAY_AMT6": [
+      "int64",
+      "float64"
+    ]
+  },
+  "missing_cells": 0,
+  "id_duplicates": 0,
+  "labels": {
+    "0": 23364,
+    "1": 6636
+  },
+  "event_rate": 0.2212,
+  "identical_predictor_extra_rows": 56,
+  "predictor_groups": 29944,
+  "conflicting_label_groups": 21,
+  "categorical_domains": {
+    "SEX": [
+      1,
+      2
+    ],
+    "EDUCATION": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "MARRIAGE": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "PAY_0": [
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "PAY_2": [
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "PAY_3": [
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "PAY_4": [
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "PAY_5": [
+      -2,
+      -1,
+      0,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "PAY_6": [
+      -2,
+      -1,
+      0,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "negative_counts": {
+    "BILL_AMT1": 590,
+    "BILL_AMT2": 669,
+    "BILL_AMT3": 655,
+    "BILL_AMT4": 675,
+    "BILL_AMT5": 655,
+    "BILL_AMT6": 688,
+    "PAY_AMT1": 0,
+    "PAY_AMT2": 0,
+    "PAY_AMT3": 0,
+    "PAY_AMT4": 0,
+    "PAY_AMT5": 0,
+    "PAY_AMT6": 0
+  },
+  "numeric_summary": {
+    "LIMIT_BAL": {
+      "count": 30000.0,
+      "mean": 167484.32266666667,
+      "std": 129747.66156720239,
+      "min": 10000.0,
+      "1%": 10000.0,
+      "50%": 140000.0,
+      "99%": 500000.0,
+      "max": 1000000.0
+    },
+    "SEX": {
+      "count": 30000.0,
+      "mean": 1.6037333333333332,
+      "std": 0.48912919609026045,
+      "min": 1.0,
+      "1%": 1.0,
+      "50%": 2.0,
+      "99%": 2.0,
+      "max": 2.0
+    },
+    "EDUCATION": {
+      "count": 30000.0,
+      "mean": 1.8531333333333333,
+      "std": 0.7903486597207291,
+      "min": 0.0,
+      "1%": 1.0,
+      "50%": 2.0,
+      "99%": 5.0,
+      "max": 6.0
+    },
+    "MARRIAGE": {
+      "count": 30000.0,
+      "mean": 1.5518666666666667,
+      "std": 0.5219696006132487,
+      "min": 0.0,
+      "1%": 1.0,
+      "50%": 2.0,
+      "99%": 3.0,
+      "max": 3.0
+    },
+    "AGE": {
+      "count": 30000.0,
+      "mean": 35.4855,
+      "std": 9.217904068090188,
+      "min": 21.0,
+      "1%": 22.0,
+      "50%": 34.0,
+      "99%": 60.0,
+      "max": 79.0
+    },
+    "PAY_0": {
+      "count": 30000.0,
+      "mean": -0.0167,
+      "std": 1.1238015279973348,
+      "min": -2.0,
+      "1%": -2.0,
+      "50%": 0.0,
+      "99%": 3.0,
+      "max": 8.0
+    },
+    "PAY_2": {
+      "count": 30000.0,
+      "mean": -0.13376666666666667,
+      "std": 1.1971859730345533,
+      "min": -2.0,
+      "1%": -2.0,
+      "50%": 0.0,
+      "99%": 3.0,
+      "max": 8.0
+    },
+    "PAY_3": {
+      "count": 30000.0,
+      "mean": -0.1662,
+      "std": 1.1968675684465735,
+      "min": -2.0,
+      "1%": -2.0,
+      "50%": 0.0,
+      "99%": 3.0,
+      "max": 8.0
+    },
+    "PAY_4": {
+      "count": 30000.0,
+      "mean": -0.22066666666666668,
+      "std": 1.1691386224023375,
+      "min": -2.0,
+      "1%": -2.0,
+      "50%": 0.0,
+      "99%": 3.0,
+      "max": 8.0
+    },
+    "PAY_5": {
+      "count": 30000.0,
+      "mean": -0.2662,
+      "std": 1.1331874060027483,
+      "min": -2.0,
+      "1%": -2.0,
+      "50%": 0.0,
+      "99%": 3.0,
+      "max": 8.0
+    },
+    "PAY_6": {
+      "count": 30000.0,
+      "mean": -0.2911,
+      "std": 1.1499876256079027,
+      "min": -2.0,
+      "1%": -2.0,
+      "50%": 0.0,
+      "99%": 3.0,
+      "max": 8.0
+    },
+    "BILL_AMT1": {
+      "count": 30000.0,
+      "mean": 51223.3309,
+      "std": 73635.86057552956,
+      "min": -165580.0,
+      "1%": -81.0,
+      "50%": 22381.5,
+      "99%": 350110.6799999999,
+      "max": 964511.0
+    },
+    "BILL_AMT2": {
+      "count": 30000.0,
+      "mean": 49179.07516666667,
+      "std": 71173.76878252835,
+      "min": -69777.0,
+      "1%": -200.0,
+      "50%": 21200.0,
+      "99%": 337495.27999999997,
+      "max": 983931.0
+    },
+    "BILL_AMT3": {
+      "count": 30000.0,
+      "mean": 47013.1548,
+      "std": 69349.38742703684,
+      "min": -157264.0,
+      "1%": -200.0,
+      "50%": 20088.5,
+      "99%": 325030.38999999897,
+      "max": 1664089.0
+    },
+    "BILL_AMT4": {
+      "count": 30000.0,
+      "mean": 43262.94896666666,
+      "std": 64332.85613391631,
+      "min": -170000.0,
+      "1%": -212.01999999999998,
+      "50%": 19052.0,
+      "99%": 304997.26999999996,
+      "max": 891586.0
+    },
+    "BILL_AMT5": {
+      "count": 30000.0,
+      "mean": 40311.40096666667,
+      "std": 60797.15577026487,
+      "min": -81334.0,
+      "1%": -232.01,
+      "50%": 18104.5,
+      "99%": 285868.32999999996,
+      "max": 927171.0
+    },
+    "BILL_AMT6": {
+      "count": 30000.0,
+      "mean": 38871.7604,
+      "std": 59554.10753674573,
+      "min": -339603.0,
+      "1%": -331.03,
+      "50%": 17071.0,
+      "99%": 279505.05999999965,
+      "max": 961664.0
+    },
+    "PAY_AMT1": {
+      "count": 30000.0,
+      "mean": 5663.5805,
+      "std": 16563.280354025766,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 2100.0,
+      "99%": 66522.17999999854,
+      "max": 873552.0
+    },
+    "PAY_AMT2": {
+      "count": 30000.0,
+      "mean": 5921.1635,
+      "std": 23040.870402057237,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 2009.0,
+      "99%": 76651.01999999999,
+      "max": 1684259.0
+    },
+    "PAY_AMT3": {
+      "count": 30000.0,
+      "mean": 5225.6815,
+      "std": 17606.961469803104,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 1800.0,
+      "99%": 70000.0,
+      "max": 896040.0
+    },
+    "PAY_AMT4": {
+      "count": 30000.0,
+      "mean": 4826.076866666666,
+      "std": 15666.159744032007,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 1500.0,
+      "99%": 67054.43999999961,
+      "max": 621000.0
+    },
+    "PAY_AMT5": {
+      "count": 30000.0,
+      "mean": 4799.387633333334,
+      "std": 15278.30567914479,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 1500.0,
+      "99%": 65607.55999999991,
+      "max": 426529.0
+    },
+    "PAY_AMT6": {
+      "count": 30000.0,
+      "mean": 5215.502566666667,
+      "std": 17777.4657754353,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 1500.0,
+      "99%": 82619.04999999935,
+      "max": 528666.0
+    },
+    "default.payment.next.month": {
+      "count": 30000.0,
+      "mean": 0.2212,
+      "std": 0.41506180569093337,
+      "min": 0.0,
+      "1%": 0.0,
+      "50%": 0.0,
+      "99%": 1.0,
+      "max": 1.0
+    }
+  },
+  "undocumented_codes": {
+    "EDUCATION": [
+      0,
+      5,
+      6
+    ],
+    "MARRIAGE": [
+      0
+    ],
+    "repayment": [
+      -2,
+      0
+    ]
+  },
+  "license_policy": "Kaggle metadata says CC0; retain original UCI CC BY 4.0 attribution rather than infer mirror relicensing rights.",
+  "limitations": [
+    "Single 2005 Taiwan cohort; no genuine out-of-time evaluation",
+    "Target header says next month; exact default threshold unverified",
+    "Existing borrowers, not rejected/new-applicant population",
+    "Unknown repayment/category codes retained without invented mapping"
+  ],
+  "files": [
+    {
+      "path": "data\\raw\\uci_credit_card\\data.csv",
+      "bytes": 2897080,
+      "sha256": "45bcf4df62ff2e237a74eb155cabfb4bbbc171219a0637daef44fdad07503dd0"
+    },
+    {
+      "path": "data\\raw\\uci_credit_card\\default of credit card clients.xls",
+      "bytes": 5539328,
+      "sha256": "30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933"
+    },
+    {
+      "path": "data\\raw\\uci_credit_card\\original.zip",
+      "bytes": 5539494,
+      "sha256": "56c885f84457f6680f8438f02bfcdac9579323d8a94465ee5f26e32baa727602"
+    },
+    {
+      "path": "data\\raw\\uci_credit_card\\uci_metadata.json",
+      "bytes": 7253,
+      "sha256": "b92ff7a69d5b65179f61f0b01c456dc6cf69e783fbd02eb2be0a014abce1ad2b"
+    },
+    {
+      "path": "data\\raw\\kaggle_credit_card\\kaggle_credit_card.zip",
+      "bytes": 1025318,
+      "sha256": "841af51be5c1e60383a4d8e8ef03b90f619fda362af871455d1c1d326b8e7a2d"
+    },
+    {
+      "path": "data\\raw\\kaggle_credit_card\\kaggle_metadata.json",
+      "bytes": 9206,
+      "sha256": "9e30ec7028a2518afb06d23a1950bbd5d3d6eb7db4f4bbf03c9201703a1d4690"
+    },
+    {
+      "path": "data\\raw\\kaggle_credit_card\\UCI_Credit_Card.csv",
+      "bytes": 2862995,
+      "sha256": "a0f0ab49d6326671d6cd83be5c88dcf18007025fe9a53ecd699119c871176ca1"
+    }
+  ],
+  "original_xls_shape": [
+    30000,
+    25
+  ],
+  "original_xls_value_mismatches": 0
+}

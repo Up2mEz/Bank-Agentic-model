@@ -1,0 +1,52 @@
+{
+  "review_completed_utc": "2026-10-05T07:48:10.866064+00:00",
+  "pytest_passed": 20,
+  "ruff_lint_passed": true,
+  "ruff_format_passed": true,
+  "compile_passed": true,
+  "reviewed_source_hashes": {
+    "src/creditrisk/__init__.py": "430a18b5a9e0b8a536377874ed79ab455277549f19108b0f7e1bb8a998604785",
+    "src/creditrisk/artifacts.py": "9f9992b9a034319478c25f70da36a9768b959e52ca2ca2cfbd8c08f9b255869c",
+    "src/creditrisk/calibration.py": "7a178894356e549e5dcc36e71f74872a712dec995e1c3dbb0ec2a698badd503f",
+    "src/creditrisk/cli.py": "65d50ed1fe09309b353859d6ff169628b8c095599485ac954ee20c9945840473",
+    "src/creditrisk/experiment.py": "d2d5ddf309dcdff358e7190836ee042a108924b69c9febddea09910b55ba5c6c",
+    "src/creditrisk/exploration.py": "430b5052753e2df465c3d018ac56df35a5423372e18a1d17b90a4757f7f74e62",
+    "src/creditrisk/features.py": "8c9c3b805221ced7e7896d65b3fbbd4a6ea4d524d00988ebd2550e57e178278a",
+    "src/creditrisk/metrics.py": "faf9378bea66f3ccb6e1ac514b0c88d0b36bc7de321f6ebaae1edef85107e5b0",
+    "src/creditrisk/models.py": "2aaa2291ea47cf142f1ffa4cc05c6252278a2a786fe636a6cd4e4c2cf8a69b78",
+    "src/creditrisk/nested.py": "184aa5f145a2c1c02d22d3c1ddc764eaa7f609ebbe93b47fe22eed2c11d0ed3a",
+    "src/creditrisk/schema.py": "fdacf6ca76bfd7196c16a8c7630570ba572450436ecca0c2645c8134ba565579",
+    "src/creditrisk/splits.py": "03cf47799f746e0497efb0d8dd9105b9718f9439c2d763674dc42208df6d231a"
+  },
+  "agy": {
+    "method": {
+      "completed_utc": "2026-10-05T07:13:54.902188+00:00",
+      "exit_code": 0,
+      "nonempty_stdout": true,
+      "stdout_chars": 6864,
+      "review_completed": true,
+      "prompt_sha256": "c6d600fa43c31a04eb7fbef5a00fe8f072a36d0966bee8a33fc35c7964ba8886",
+      "scope": "Supplied material only; no independent file inspection or measurements claimed"
+    },
+    "code": {
+      "completed_utc": "2026-10-05T07:30:35.249842+00:00",
+      "exit_code": 0,
+      "nonempty_stdout": true,
+      "stdout_chars": 11133,
+      "review_completed": true,
+      "prompt_sha256": "b374e4ed848fa02894e2d4874ba1613d4ded210e158ac11d694df4ce69804ef9",
+      "scope": "Supplied material only; no independent file inspection or measurements claimed"
+    },
+    "helpers": {
+      "completed_utc": "2026-10-05T07:39:29.113772+00:00",
+      "exit_code": 0,
+      "nonempty_stdout": true,
+      "stdout_chars": 7776,
+      "review_completed": true,
+      "prompt_sha256": "a7c1519afa6a06fc2588d24cc0d2a7c9088db45674611e662b0c92e116d29945",
+      "scope": "Supplied material only; no independent file inspection or measurements claimed"
+    }
+  },
+  "original_unused_preflight_protocol_sha256": "46e9a72e506a38fd156f489abf5a0d6a9670e0eb938c67e5034c4070bc5326dd",
+  "no_independent_holdout": true
+}

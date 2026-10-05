@@ -1,0 +1,51 @@
+{
+  "exported_utc": "2026-10-05T07:45:46.570089+00:00",
+  "files": [
+    {
+      "source": "outputs/experiment_v1/REPORT_TH.md",
+      "export": "REPORT_TH.md",
+      "sha256": "f3ee6205983df115037d20e5addc089b2bd690675a24ae33c4f7374989db344c"
+    },
+    {
+      "source": "outputs/experiment_v1/evaluation.png",
+      "export": "evaluation.png",
+      "sha256": "76def7283954a5271f298edcaaab564bf01dd6e5c2513a2bc25f893e389ceab0"
+    },
+    {
+      "source": "outputs/experiment_v1/metrics.csv",
+      "export": "metrics.csv",
+      "sha256": "f835b181d9266d438abeea00ffeabd081f02df34a801dfc8ebe1bdca48eb5b57"
+    },
+    {
+      "source": "outputs/experiment_v1/protocol.json",
+      "export": "protocol.json",
+      "sha256": "2c04f4317796beef8eb53a7c84c8d24830cbb6e6a8639fd646656ee4434d8bbf"
+    },
+    {
+      "source": "outputs/experiment_v1/data_audit.json",
+      "export": "data_audit.json",
+      "sha256": "0bde6c54195f6ac95d990031c3c9a4c8ef5d73134fdf74fd93c363e987475a48"
+    },
+    {
+      "source": "outputs/experiment_v1/verification.json",
+      "export": "verification.json",
+      "sha256": "91cf3e9398124ab0c8d20ad590b19924eea95596d1b714c697c9e1fee3cf23ea"
+    },
+    {
+      "source": "outputs/experiment_v1/model_card.json",
+      "export": "model_card.json",
+      "sha256": "1e96bc7247b528d0992a3a3671f1e9be77f431a0657773de129301ef9f00ff2e"
+    },
+    {
+      "source": "outputs/experiment_v1/test_results.json",
+      "export": "test_results.json",
+      "sha256": "d2667a6f7dcc2589de927697d3de42ec925a5d39de8ba3f0e48aae937c383072"
+    },
+    {
+      "source": "outputs/experiment_v1/tabpfn_v3_5_results.json",
+      "export": "tabpfn_v3_5_results.json",
+      "sha256": "ddb27b4287e2a6ce5423c776f426c8b0bc5e6efbf6b3d1ff74097cb74b57bd8e"
+    }
+  ],
+  "data_attribution": "Derived from Yeh (2009), UCI Default of Credit Card Clients, CC BY 4.0; exact-vector groups are not verified borrower identities."
+}
