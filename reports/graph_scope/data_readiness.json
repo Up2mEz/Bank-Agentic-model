@@ -1,0 +1,95 @@
+{
+  "checked_utc": "2026-10-05T09:47:11.620578+00:00",
+  "source_file": "UCI_Credit_Card.csv",
+  "source_sha256": "a0f0ab49d6326671d6cd83be5c88dcf18007025fe9a53ecd699119c871176ca1",
+  "audit_script_sha256": "9abaae0c6f75e6c4b985227de9a41febf5c8c7c598c0820a90e75103567c7fc6",
+  "source_dictionary": "https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients",
+  "rows": 30000,
+  "columns": [
+    "ID",
+    "LIMIT_BAL",
+    "SEX",
+    "EDUCATION",
+    "MARRIAGE",
+    "AGE",
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+    "BILL_AMT1",
+    "BILL_AMT2",
+    "BILL_AMT3",
+    "BILL_AMT4",
+    "BILL_AMT5",
+    "BILL_AMT6",
+    "PAY_AMT1",
+    "PAY_AMT2",
+    "PAY_AMT3",
+    "PAY_AMT4",
+    "PAY_AMT5",
+    "PAY_AMT6",
+    "default.payment.next.month"
+  ],
+  "predictors": 23,
+  "target": "default.payment.next.month",
+  "label_counts": {
+    "0": 23364,
+    "1": 6636
+  },
+  "positive_label_rate": 0.2212,
+  "missing_cells": 0,
+  "unique_ids": 30000,
+  "rows_per_id_max": 1,
+  "distinct_predictor_vectors": 29944,
+  "identical_predictor_extra_rows": 56,
+  "conflicting_label_vector_groups": 21,
+  "rows_in_conflicting_label_vector_groups": 46,
+  "historical_month_columns": {
+    "payment_status": [
+      "PAY_0",
+      "PAY_2",
+      "PAY_3",
+      "PAY_4",
+      "PAY_5",
+      "PAY_6"
+    ],
+    "bill_amount": [
+      "BILL_AMT1",
+      "BILL_AMT2",
+      "BILL_AMT3",
+      "BILL_AMT4",
+      "BILL_AMT5",
+      "BILL_AMT6"
+    ],
+    "previous_payment_amount": [
+      "PAY_AMT1",
+      "PAY_AMT2",
+      "PAY_AMT3",
+      "PAY_AMT4",
+      "PAY_AMT5",
+      "PAY_AMT6"
+    ]
+  },
+  "month_mapping_from_dictionary": {
+    "latest": "September 2005",
+    "earliest": "April 2005",
+    "order": "Latest to earliest across each six-column family"
+  },
+  "dictionary_and_schema_assessment": {
+    "unit": "One card-client row with six historical monthly summaries",
+    "id_role": "Row ID; no documented counterparty or cross-entity link",
+    "target_role": "Next-month default payment, not a documented fraud outcome",
+    "not_provided": [
+      "Observed sender-recipient or customer-account relationships",
+      "Individual transactions and their timestamps",
+      "Merchant, device, IP or login/session identifiers",
+      "Investigated fraud/AML outcomes and label availability dates",
+      "Fraud loss, recoveries, LGD or EAD outcomes",
+      "Repeated monthly prediction cohorts or Thai-bank population"
+    ],
+    "assessment_method": "Review of the complete column list and UCI dictionary; not keyword matching",
+    "limitations": "Does not establish hidden relationships, default threshold, fraud causation or deployability"
+  }
+}

@@ -6,6 +6,7 @@
 
 - [ผลรอบสามและ failure analysis ภาษาไทย](reports/v3/REPORT_TH.md)
 - [Literature review เพิ่มเติมและ data exploration](research/ITERATION_3_RESEARCH_TH.md)
+- [Graph ML สำหรับ fraud และขอบเขต event ในธนาคาร](research/GRAPH_FRAUD_AND_BANK_EVENT_SCOPE_TH.md) — audit ข้อมูลเดิมและตรวจนิยาม labels ของ graph benchmarks
 - [Protocol](reports/v3/protocol.json), [คำตัดสิน gate](reports/v3/selection.json), [verification](reports/v3/verification.json)
 - [ผลรอบสอง](reports/v2/REPORT_TH.md) และ [ผลรอบแรก](reports/v1/REPORT_TH.md)
 - [การตรวจข้อเสนอ agy](research/AGY_V3_REVIEW_DISPOSITION_TH.md), [โครงสร้างโค้ด](docs/ARCHITECTURE.md), [data provenance](data/README.md)
