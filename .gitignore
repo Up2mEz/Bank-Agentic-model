@@ -15,3 +15,12 @@ outputs/
 *.pt
 *.pth
 *.partial
+
+# Local toolchains, caches, private test evidence, and related Git checkouts.
+/.local/
+/repos/
+/.playwright-mcp/
+
+# Local bridge for static reads by a server started before the agent_app move.
+# Fresh processes load assets from agent_app/src/merchant_sandbox/static/.
+/src/merchant_sandbox/static

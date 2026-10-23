@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "purpose": "NEW synthetic coverage probes; evaluation-only literal oracles, never model context or lending policy",
+  "as_of": "2026-10-23T00:00:00+00:00",
+  "months": ["2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"],
+  "base": {"sales": [200000, 200000, 200000, 200000, 200000, 200000], "goods": 100000, "rent": 45000},
+  "corroboration_contract": "None until report owner defines a versioned schema. No synthetic sale designation or R heuristic proves customer sales. Additional POS/invoice/matched settlement evidence requires coordination, not fabricated support.",
+  "cases": {
+    "S01": {
+      "name": "ชื่อเจ้าของไม่ตรง ปลายงวดขาดหนึ่งวัน และยอดยกมาต่อกันไม่ได้",
+      "dimensions": ["document_account_period_continuity"],
+      "documents": [
+        {"id": "DOC-S01-A", "start": "2026-04-01", "end": "2026-06-30", "holder": "Mali Jaidee", "account": "OWN-A"},
+        {"id": "DOC-S01-B", "start": "2026-07-01", "end": "2026-09-29", "holder": "Other Person", "account": "OWN-A"}
+      ],
+      "expected": {
+        "evaluation_only": true,
+        "document_totals": [
+          {"refs": ["DOC-S01-A"], "opening_thb": "1000000.00", "credit_thb": "600000.00", "debit_thb": "435000.00", "closing_thb": "1165000.00", "rows": 9},
+          {"refs": ["DOC-S01-B"], "opening_thb": "1000000.00", "credit_thb": "600000.00", "debit_thb": "435000.00", "closing_thb": "1165000.00", "rows": 9}
+        ],
+        "cross_document_continuity": {"refs": ["DOC-S01-A:page-1:table-1:row-10", "DOC-S01-B:page-1:table-1:row-2"], "previous_closing_thb": "1165000.00", "next_opening_thb": "1000000.00", "unexplained_difference_thb": "-165000.00"},
+        "full_month_coverage_missing": ["2026-09"],
+        "sections": {
+          "supported_sales_receipts": {"confirmed_total_thb": null, "receipts": [], "candidate_total_thb": null, "reason": "Owner/period/continuity unresolved; balanced arithmetic is not authenticity or applicant sales evidence"},
+          "non_sales_inflows": [],
+          "identifiable_payment_obligations": [{"refs": ["DOC-S01-A"], "status": "MEMO_ONLY_NOT_CONTRACT_VERIFIED", "monthly_goods_candidate_thb": "100000.00", "monthly_rent_candidate_thb": "45000.00"}],
+          "unresolved_items_questions": [
+            {"refs": ["DOC-S01-B"], "code": "OWNER_MISMATCH", "question": "โปรดอธิบายความสัมพันธ์กับชื่อเจ้าของบัญชีในเอกสารช่วงหลังและแนบเอกสารบัญชีที่เกี่ยวข้อง"},
+            {"refs": ["DOC-S01-B"], "code": "PERIOD_END_SHORT", "question": "ขอ statement จนถึงวันที่ 2026-09-30 เพราะเอกสารจบวันที่ 2026-09-29"},
+            {"refs": ["DOC-S01-A", "DOC-S01-B"], "code": "CROSS_DOCUMENT_DISCONTINUITY", "question": "ขอยืนยันยอดยกมาและรายการเชื่อมระหว่างงวด ยอดปิด 1165000 กับยอดเปิด 1000000 ต่างกัน 165000 บาท"}
+          ]
+        },
+        "must_not": ["claim authenticity from balanced arithmetic", "erase continuity question because owner question exists", "auto approve or reject"]
+      }
+    },
+    "S02": {
+      "name": "เงินกู้และทุนเจ้าของปนกับ memo sales",
+      "dimensions": ["inflow_source", "outgoing_debt_unknown"],
+      "extra_rows": [
+        ["2026-04-05", "loan proceeds lender L1", 0, 100000],
+        ["2026-05-05", "shop sales - owner capital contribution", 0, 80000]
+      ],
+      "expected": {
+        "evaluation_only": true,
+        "document_totals": [{"refs": ["DOC-S02-A"], "opening_thb": "1000000.00", "credit_thb": "1380000.00", "debit_thb": "870000.00", "closing_thb": "1510000.00", "rows": 20}],
+        "candidate_sales_by_month_thb": ["200000.00", "200000.00", "200000.00", "200000.00", "200000.00", "200000.00"],
+        "non_sales_total_thb": "180000.00",
+        "sections": {
+          "supported_sales_receipts": {"confirmed_total_thb": null, "receipts": [], "candidate_total_thb": "1200000.00", "reason": "Synthetic recurring sales designation is evaluation truth, not matched sales support"},
+          "non_sales_inflows": [
+            {"refs": ["DOC-S02-A:page-1:table-1:row-3"], "type": "LOAN_PROCEEDS", "amount_thb": "100000.00", "status": "MEMO_INDICATED_PENDING_EVIDENCE"},
+            {"refs": ["DOC-S02-A:page-1:table-1:row-7"], "type": "CAPITAL", "amount_thb": "80000.00", "status": "MEMO_INDICATED_PENDING_EVIDENCE"}
+          ],
+          "identifiable_payment_obligations": [{"refs": ["input:debt_thb"], "status": "DECLARED_NOT_COMPLETENESS_VERIFIED", "declared_monthly_debt_thb": "10000.00", "incoming_loan_installment_thb": null}],
+          "unresolved_items_questions": [
+            {"refs": ["DOC-S02-A:page-1:table-1:row-3"], "code": "LOAN_SOURCE_AND_SCHEDULE", "question": "ขอสัญญาเงินกู้และตารางผ่อน พร้อมยืนยันว่าอยู่ในภาระหนี้ที่แจ้งแล้วหรือไม่"},
+            {"refs": ["DOC-S02-A:page-1:table-1:row-7"], "code": "OWNER_CAPITAL_SOURCE", "question": "ขอหลักฐานทุนเจ้าของและบัญชีต้นทาง รายการนี้ไม่ใช่หลักฐานยอดขายแม้มีคำว่า sales"}
+          ]
+        },
+        "must_not": ["include 180000 of loan/capital in sales", "infer installment from principal", "claim sales proven by R", "auto approve or reject"]
+      }
+    },
+    "S03": {
+      "name": "รายได้ลดลงต่อเนื่องจนเดือนสุดท้ายเป็นศูนย์",
+      "dimensions": ["six_month_variability_trend", "residual_monthly_liquidity"],
+      "sales": [240000, 210000, 180000, 150000, 120000, 0],
+      "expected": {
+        "evaluation_only": true,
+        "document_totals": [{"refs": ["DOC-S03-A"], "opening_thb": "1000000.00", "credit_thb": "900000.00", "debit_thb": "870000.00", "closing_thb": "1030000.00", "rows": 17}],
+        "candidate_sales_by_month_thb": ["240000.00", "210000.00", "180000.00", "150000.00", "120000.00", "0.00"],
+        "monthly_bank_net_thb": ["95000.00", "65000.00", "35000.00", "5000.00", "-25000.00", "-145000.00"],
+        "provisional_residual_before_reserve_thb": ["70000.00", "40000.00", "10000.00", "-20000.00", "-50000.00", "-170000.00"],
+        "candidate_sales_full_six_mean_thb": "150000.00",
+        "candidate_sales_first_three_mean_thb": "210000.00",
+        "candidate_sales_last_three_mean_thb": "90000.00",
+        "zero_income_months": ["2026-09"],
+        "negative_residual_months": ["2026-07", "2026-08", "2026-09"],
+        "sections": {
+          "supported_sales_receipts": {"confirmed_total_thb": null, "receipts": [], "candidate_total_thb": "900000.00", "reason": "No corroboration. Show zero observed credits distinctly from missing statement month"},
+          "non_sales_inflows": [],
+          "identifiable_payment_obligations": [{"refs": ["DOC-S03-A", "input:debt_thb", "input:living_cost_thb"], "status": "PROVISIONAL_MEMOS_AND_DECLARATIONS", "monthly_goods_thb": "100000.00", "monthly_rent_thb": "45000.00", "declared_debt_thb": "10000.00", "declared_living_thb": "15000.00"}],
+          "unresolved_items_questions": [{"refs": ["DOC-S03-A"], "code": "DECLINING_AND_ZERO_MONTH", "question": "ขออธิบายยอดรับที่ลดต่อเนื่องและเดือนกันยายนที่ไม่พบเงินเข้าร้าน พร้อมหลักฐานฤดูกาล การหยุดกิจการ หรือแหล่งเงินสำรองช่วงกรกฎาคมถึงกันยายน"}]
+        },
+        "must_not": ["drop zero month from mean or trend", "call September missing statement", "mask monthly shortage with mean", "auto approve or reject"]
+      }
+    },
+    "S04": {
+      "name": "เงินก้อนเข้าปลายงวดแล้วออกเกือบหมดวันถัดมา ไม่ทราบวัตถุประสงค์",
+      "dimensions": ["neutral_pattern_questions", "inflow_source", "residual_monthly_liquidity"],
+      "extra_rows": [
+        ["2026-09-29", "incoming reference LATE-X purpose unspecified", 0, 900000],
+        ["2026-09-30", "outgoing reference FAST-X purpose unspecified", 890000, 0]
+      ],
+      "expected": {
+        "evaluation_only": true,
+        "document_totals": [{"refs": ["DOC-S04-A"], "opening_thb": "1000000.00", "credit_thb": "2100000.00", "debit_thb": "1760000.00", "closing_thb": "1340000.00", "rows": 20}],
+        "monthly_bank_net_thb": ["55000.00", "55000.00", "55000.00", "55000.00", "55000.00", "65000.00"],
+        "pattern": {"refs": ["DOC-S04-A:page-1:table-1:row-20", "DOC-S04-A:page-1:table-1:row-21"], "days_apart": 1, "inbound_thb": "900000.00", "outbound_thb": "890000.00", "pair_net_thb": "10000.00", "relationship": "UNKNOWN", "purpose": "UNKNOWN"},
+        "sections": {
+          "supported_sales_receipts": {"confirmed_total_thb": null, "receipts": [], "candidate_total_thb": "1200000.00", "reason": "Unexplained 900000 inflow is not sales support"},
+          "non_sales_inflows": [],
+          "identifiable_payment_obligations": [{"refs": ["DOC-S04-A:page-1:table-1:row-21"], "status": "OUTFLOW_PURPOSE_UNKNOWN_NOT_A_CONFIRMED_DEBT", "amount_thb": "890000.00"}],
+          "unresolved_items_questions": [{"refs": ["DOC-S04-A:page-1:table-1:row-20", "DOC-S04-A:page-1:table-1:row-21"], "code": "LATE_INBOUND_RAPID_OUTBOUND", "question": "เงินเข้า 900000 วันที่ 29 กันยายนมาจากแหล่งใด และเงินออก 890000 วันถัดไปมีวัตถุประสงค์ใด สองรายการเกี่ยวข้องกันหรือไม่ กรุณาแนบหลักฐานที่มาและการใช้เงิน"}]
+        },
+        "must_not": ["label fraud or manipulation", "assert own transfer or loan without evidence", "treat 900000 as retained liquidity", "auto approve or reject"]
+      }
+    },
+    "S05": {
+      "name": "ผู้รับเงินไม่ระบุชื่อ แยกวัตถุดิบหรือส่วนตัวไม่ได้ และพบยอดผ่อนที่ระบุได้",
+      "dimensions": ["outgoing_debt_unknown", "residual_monthly_liquidity"],
+      "debt_thb": null,
+      "monthly_extra_rows": [
+        ["17", "payment ref ANON-A", 35000, 0],
+        ["18", "payment ref ANON-B", 12000, 0],
+        ["20", "loan repayment lender L1", 10000, 0]
+      ],
+      "expected": {
+        "evaluation_only": true,
+        "document_totals": [{"refs": ["DOC-S05-A"], "opening_thb": "1000000.00", "credit_thb": "1200000.00", "debit_thb": "1212000.00", "closing_thb": "988000.00", "rows": 36}],
+        "monthly_bank_net_thb": ["-2000.00", "-2000.00", "-2000.00", "-2000.00", "-2000.00", "-2000.00"],
+        "identifiable_monthly_repayment_thb": "10000.00",
+        "total_monthly_debt_thb": null,
+        "unclassified_monthly_outflow_thb": "47000.00",
+        "provisional_residual_before_reserve_thb": null,
+        "sections": {
+          "supported_sales_receipts": {"confirmed_total_thb": null, "receipts": [], "candidate_total_thb": "1200000.00", "reason": "Recurring shop-sales memo alone does not prove revenue source"},
+          "non_sales_inflows": [],
+          "identifiable_payment_obligations": [
+            {"refs": ["DOC-S05-A:page-1:table-1:row-7", "DOC-S05-A:page-1:table-1:row-13", "DOC-S05-A:page-1:table-1:row-19", "DOC-S05-A:page-1:table-1:row-25", "DOC-S05-A:page-1:table-1:row-31", "DOC-S05-A:page-1:table-1:row-37"], "type": "OBSERVED_LABELLED_LOAN_REPAYMENT", "monthly_thb": "10000.00", "six_month_total_thb": "60000.00", "status": "PAYMENT_OBSERVED_TOTAL_DEBT_UNKNOWN"}
+          ],
+          "unresolved_items_questions": [
+            {"refs": ["DOC-S05-A:page-1:table-1:row-5", "DOC-S05-A:page-1:table-1:row-6"], "code": "ANONYMOUS_EXPENSE_PURPOSE", "question": "ขอชื่อผู้รับและหลักฐานการจ่ายประจำ 35000 และ 12000 บาทต่อเดือน แต่ละรายการเป็นค่าวัตถุดิบ ค่าใช้จ่ายส่วนตัว หรือภาระอื่น และซ้ำกับต้นทุนหรือค่าครองชีพที่แจ้งแล้วหรือไม่"},
+            {"refs": ["input:debt_thb", "DOC-S05-A:page-1:table-1:row-7"], "code": "DEBT_COMPLETENESS_UNKNOWN", "question": "พบยอดผ่อนที่ระบุได้ 10000 บาทต่อเดือน ขอภาระหนี้ทั้งหมดและตารางผ่อน ไม่สามารถสรุปว่าเป็นหนี้ทั้งหมดหรือไม่มีหนี้อื่น"}
+          ]
+        },
+        "must_not": ["classify anonymous payments as debt or personal by repetition", "replace unknown total debt with 0 or observed 10000", "double subtract labelled debt and declared debt", "compute final residual with unknown debt", "auto approve or reject"]
+      }
+    }
+  }
+}

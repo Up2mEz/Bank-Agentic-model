@@ -1,5 +1,17 @@
 # Bank Agentic Model — Credit Risk Research
 
+## Merchant agent application
+
+ระบบช่วยเจ้าหน้าที่ตรวจคำขอสินเชื่ออยู่ใน [`agent_app/`](agent_app/README.md)
+มี controller คุมขั้นตอน, OCR/statement tools, เว็บเจ้าหน้าที่ และ native tool agent
+สำหรับการทดลอง แยกจากงานวิจัยเครดิตด้านล่าง
+
+อ่าน [สถานะ workflow และงานที่ยังไม่ผ่านสำหรับทีม](docs/merchant_lending/TEAM_AGENTIC_STATUS_20261024_TH.md)
+เพื่อดูผล model scenarios ที่ยังไม่ผ่าน และอ่าน [คู่มือ service ใหม่](agent_app/SERVICE_GUIDE_TH.md)
+สำหรับทดลอง browser/Android → Agent service → รายงาน 4 ส่วนในเว็บเจ้าหน้าที่
+ผลเป็น evidence-only ยังต้องมีเจ้าหน้าที่ตรวจ และยังไม่มี workflow เพิ่มวงเงินจากประวัติชำระ
+
+
 โครงการวิจัยการทำนาย **การผิดนัดชำระหนี้ (credit default)** จากข้อมูลผู้ถือบัตรเครดิต พร้อมการเปรียบเทียบโมเดล วิเคราะห์ข้อผิดพลาด (failure analysis) และตรวจสอบหลักฐานผลทดลอง ใช้ UCI/Kaggle Default of Credit Card Clients ซึ่งเป็นข้อมูลไต้หวันปี 2005; ยังไม่มีผล validation บนข้อมูลธนาคารไทย
 
 **สถานะ 5 ตุลาคม 2026:** มีผล TabPFN-3.5 ทั้ง context 1,000 และ 4,000 แถว ส่วนโมเดลหลักที่เลือกไว้ยังเป็น **V2: CatBoost 75% + LightGBM 25%** เพราะ candidate ในรอบ V3 ไม่ผ่านเกณฑ์เปลี่ยนโมเดล (promotion gate)

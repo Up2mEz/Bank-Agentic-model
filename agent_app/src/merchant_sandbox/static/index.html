@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Merchant Review · เจ้าหน้าที่</title>
+  <link rel="stylesheet" href="/staff.css">
+  <script src="/staff.js" defer></script>
+  <script src="/lending.js" defer></script>
+</head>
+<body>
+<header><div><strong class="brand">MERCHANT REVIEW</strong><p class="small">พื้นที่ทำงานเจ้าหน้าที่สินเชื่อ</p></div><nav aria-label="พื้นที่ทำงาน"><a href="/test-application">แบบฟอร์มทดสอบ</a><a href="/lab">Developer lab</a><span class="badge">Local sandbox</span></nav></header>
+<div class="shell">
+  <aside aria-label="คิวคำขอสินเชื่อ">
+    <div class="aside-head"><h1>คิวคำขอ</h1><button id="refresh" aria-label="โหลดคิวและคำขอใหม่">โหลดใหม่</button></div>
+    <label for="search">ค้นหาชื่อ ร้าน หรือเลขเคส</label><input id="search" type="search" placeholder="ชื่อร้าน / CASE-…">
+    <label for="filter">สถานะ</label><select id="filter"><option value="">ทุกสถานะ</option><option value="DRAFT">รอตรวจหลักฐาน</option><option value="REVIEW_READY">พร้อมพิจารณา</option><option value="WAIT_CUSTOMER">รอข้อมูลเพิ่ม</option><option value="EXCEPTION_REVIEW">รอตรวจเพิ่มเติม</option><option value="APPROVED">อนุมัติแล้ว</option><option value="DECLINED">ไม่อนุมัติ</option><option value="TECHNICAL_REVIEW">รอแก้ปัญหาเทคนิค</option></select>
+    <p class="small" id="queue-count" aria-live="polite"></p><div class="queue" id="queue"></div><p class="small">แสดงสูงสุด 50 คำขอล่าสุด</p>
+  </aside>
+  <main>
+    <div id="error" role="alert" hidden></div><p class="banner" id="capability-banner">กำลังโหลดการตั้งค่า</p>
+    <div id="empty-workspace"><h1>เลือกคำขอเพื่อพิจารณา</h1><p class="empty">ดูข้อมูลผู้สมัคร หลักฐาน และผลตรวจ Agent ในเคสเดียวกัน</p><a href="/test-application">สร้างเคสด้วยแบบฟอร์มทดสอบ →</a></div>
+    <div id="workspace" hidden>
+      <div class="heading"><div><h1 id="shop-title"></h1><p class="meta" id="case-meta"></p><p>วงเงินที่ขอ <strong id="requested"></strong></p></div><details><summary>ส่งออกข้อมูล</summary><button id="download">ดาวน์โหลดแฟ้ม JSON</button></details></div>
+      <div id="feedback" aria-live="polite"></div>
+      <section class="review-flow" aria-labelledby="review-heading">
+        <div class="heading"><div><p class="eyebrow">AGENT EVIDENCE REVIEW</p><h2 id="review-heading">ตรวจหลักฐานก่อนพิจารณา</h2></div><div class="actions"><label class="sr-only" for="review-mode">โหมดตรวจหลักฐาน</label><select id="review-mode"></select><button class="primary" id="run-agent">เริ่มตรวจหลักฐาน</button></div></div>
+        <button id="recover-dispatch" hidden>กู้คืนงาน Android ด้วยคำสั่งเดิม</button>
+        <p id="review-status" role="status" aria-live="polite">ยังไม่มีงานตรวจหลักฐาน</p><p class="small" id="review-stage"></p><p id="review-error" role="alert" hidden></p>
+        <p class="notice">Offline ใช้เฉพาะ OCR ที่บันทึกไว้ ไม่เรียก LLM และไม่อ่าน PDF ใหม่ · Typhoon เรียก OCR/โมเดลจริงตามการตั้งค่า · ผลตรวจไม่ใช่คำตัดสินสินเชื่อ</p>
+        <div class="callout" id="review-pending" hidden>ยังไม่ทราบผลคำสั่งเดิม ระบบเก็บ mode, version และ key เดิมไว้ กรุณาตรวจผลเดิมก่อนเริ่มงานอื่น</div><button id="recover-review" hidden>ตรวจผลคำสั่งตรวจหลักฐานเดิม</button>
+        <h2 id="review-report-label">รายงานตรวจหลักฐาน</h2><div id="review-report"></div>
+      </section>
+      <div class="tabs" role="tablist" aria-label="รายละเอียดคำขอ">
+        <button id="tab-application" role="tab" aria-selected="true" aria-controls="application" data-tab="application">ข้อมูลสมัคร / KYC</button>
+        <button id="tab-evidence" role="tab" aria-selected="false" aria-controls="evidence" data-tab="evidence" tabindex="-1">เอกสาร / OCR</button>
+        <button id="tab-assessment" role="tab" aria-selected="false" aria-controls="assessment" data-tab="assessment" tabindex="-1">พิจารณาโดยเจ้าหน้าที่</button>
+        <button id="tab-trace" role="tab" aria-selected="false" aria-controls="trace" data-tab="trace" tabindex="-1">ประวัติ Agent</button>
+      </div>
+      <section role="tabpanel" aria-labelledby="tab-application" id="application"></section><section role="tabpanel" aria-labelledby="tab-evidence" id="evidence" hidden></section><section role="tabpanel" aria-labelledby="tab-assessment" id="assessment" hidden></section><section role="tabpanel" aria-labelledby="tab-trace" id="trace" hidden></section>
+    </div>
+  </main>
+</div>
+</body></html>

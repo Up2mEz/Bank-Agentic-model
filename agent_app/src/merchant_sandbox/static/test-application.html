@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>แบบฟอร์มทดสอบ · Merchant Review</title><link rel="stylesheet" href="/staff.css"><script src="/test-application.js" defer></script></head>
+<body>
+<header><div><strong class="brand">MERCHANT REVIEW</strong><p class="small">แบบฟอร์มสำหรับทดสอบในเครื่อง</p></div><nav><a href="/">พื้นที่เจ้าหน้าที่</a><a href="/lab">Developer lab</a><span class="badge">Lab only</span></nav></header>
+<main class="test-main">
+  <h1>ทดสอบคำขอด้วยการกรอกข้อมูลเอง</h1><p class="banner">สร้างเคสทดสอบใน local sandbox · ช่องทางรับสมัครลูกค้าจริงยังเป็น Android ผ่าน Go gateway · ใช้ข้อมูลสังเคราะห์สำหรับการทดลอง</p>
+  <div id="error" role="alert" hidden></div><div class="callout" id="pending-command" role="status" hidden></div><button id="retry-command" hidden>ลองคำสั่งเดิมด้วย key และข้อมูลเดิม</button>
+  <div id="manual-case" class="test-state" aria-live="polite">ยังไม่ได้สร้างเคส</div><div class="actions"><button id="refresh-case">โหลดสถานะล่าสุด</button><button id="new-case">เริ่มเคสทดสอบใหม่</button></div>
+  <section class="test-step" aria-labelledby="step-create"><h2 id="step-create"><span class="step-number">1</span>สร้างเคสทดสอบ</h2><p class="notice">กรอกข้อมูลผู้สมัครและร้าน แล้วสร้างเคสก่อนแนบเอกสาร ข้อมูลที่สร้างแล้วจะคงเดิมเพื่อให้ตรวจผลซ้ำได้</p>
+    <form id="manual-form"><fieldset id="intake-fields" disabled>
+      <div class="form-grid">
+        <div><label for="applicant_name">ชื่อผู้สมัคร</label><input id="applicant_name" required maxlength="1200"></div><div><label for="shop_name">ชื่อร้าน</label><input id="shop_name" required maxlength="1200"></div>
+        <div><label for="email">อีเมลทดสอบ</label><input id="email" type="email" required maxlength="1200"></div><div><label for="phone">โทรศัพท์</label><input id="phone" type="tel" required maxlength="1200"></div>
+        <div><label for="business_type">ประเภทธุรกิจ</label><input id="business_type" required maxlength="1200"></div><div><label for="business_location">สถานที่ / ช่องทางขาย</label><input id="business_location" required maxlength="1200"></div>
+        <div><label for="requested_thb">วงเงินที่ขอ (บาท)</label><input id="requested_thb" inputmode="decimal" pattern="[0-9]{1,9}([.][0-9]{1,2})?" required></div><div><label for="purpose">วัตถุประสงค์</label><input id="purpose" required maxlength="1200"></div>
+        <div><label for="living_cost_thb">ค่าครองชีพ / เดือน (บาท) · เว้นว่างหากไม่ทราบ</label><input id="living_cost_thb" inputmode="decimal" pattern="[0-9]{1,9}([.][0-9]{1,2})?"></div><div><label for="debt_thb">ภาระหนี้ / เดือน (บาท) · เว้นว่างหากไม่ทราบ</label><input id="debt_thb" inputmode="decimal" pattern="[0-9]{1,9}([.][0-9]{1,2})?"></div>
+      </div>
+      <label for="message">ข้อความประกอบคำขอ</label><textarea id="message" maxlength="1200"></textarea>
+      <label class="checkbox"><input id="consent" type="checkbox" required><span>ยินยอมให้ประมวลผลเอกสารทดสอบในโหมดที่เลือก (Typhoon ส่งเอกสารให้ผู้ให้บริการ OCR/โมเดลจริง)</span></label>
+    </fieldset><button class="primary" id="create-case" type="submit" disabled>สร้างเคสทดสอบ</button></form>
+  </section>
+  <section class="test-step" aria-labelledby="step-documents"><h2 id="step-documents"><span class="step-number">2</span>แนบเอกสาร</h2>
+    <p>เลือกอัปโหลดไฟล์ของเคสนี้ หรือเพิ่ม bundled sample อย่างชัดเจน แต่ละปุ่มเป็นคำสั่งแยกกัน</p>
+    <label for="document-kind">ประเภทเอกสาร</label><select id="document-kind"><option value="statement">Statement</option><option value="identity">เอกสารตัวตน</option><option value="business">หลักฐานธุรกิจ</option></select>
+    <label for="document-file">ไฟล์ PDF / PNG / JPEG ไม่เกิน 3 MiB ต่อไฟล์</label><input id="document-file" type="file" accept="application/pdf,image/png,image/jpeg">
+    <div class="actions"><button id="upload-document" disabled>อัปโหลดไฟล์ที่เลือก</button></div>
+    <p class="notice">ไฟล์อัปโหลดยังไม่ได้ OCR หรือแยกประเภทรายการ ต้องเลือก Typhoon เพื่ออ่านไฟล์จริง หากไม่มี recorded OCR จะใช้ Offline ไม่ได้</p>
+    <details><summary>ใช้ PDF ตัวอย่างสังเคราะห์พร้อม recorded OCR</summary><p>Bundled sample: Mali Jaidee · บัญชี TEST-0001 เป็น PDF สังเคราะห์ที่จับคู่ recorded OCR ด้วย SHA-256 ตรงไฟล์ ไม่มีการเรียก OCR ใหม่หรือ LLM ใน Offline ชื่อในใบสมัครควรตรงกับตัวอย่างหากต้องการทดสอบเคสที่ชื่อสอดคล้องกัน</p><button id="sample-documents" disabled>เพิ่ม bundled PDF + recorded OCR สังเคราะห์</button></details>
+    <div id="manual-documents" aria-live="polite"></div>
+  </section>
+  <section class="test-step" aria-labelledby="step-review"><h2 id="step-review"><span class="step-number">3</span>เริ่มตรวจหลักฐาน</h2><p>Offline ใช้ recorded OCR ของเอกสารที่เก็บไว้เท่านั้น ไม่เรียก LLM และไม่อ่าน PDF ใหม่ ส่วน Typhoon เรียก OCR/โมเดลจริงตามที่บริการตั้งค่าไว้</p>
+    <label for="manual-review-mode">โหมดที่บริการเปิดให้ใช้</label><select id="manual-review-mode"></select><div class="actions"><button class="primary" id="start-review" disabled>เริ่มงานตรวจหลักฐาน</button></div>
+    <p id="manual-review-status" role="status" aria-live="polite">กำลังโหลดบริการ</p><p id="manual-review-error" role="alert" hidden></p><p class="notice">รายงาน 4 ส่วน อ้างอิง คำถาม และประวัติงานดูได้ที่ลิงก์พื้นที่เจ้าหน้าที่ด้านบน การตรวจนี้ไม่มีคำตัดสินอนุมัติสินเชื่อ</p>
+  </section>
+</main></body></html>

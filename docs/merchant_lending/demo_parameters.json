@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "policy_version": "DEMO_RULES_V1",
+  "status": "PROPOSED_DEMO_PARAMETERS_NOT_VALIDATED_CREDIT_POLICY",
+  "production_enabled": false,
+  "currency": "THB",
+  "currency_minor_unit_digits": 2,
+  "human_final_decision_required": true,
+  "external_integration_mode": "MOCK_ALLOWED",
+  "billing_scope": ["AWS_AND_EXTERNAL_SERVICES", "LOAN_INTEREST_FEES_REPAYMENT"],
+  "assessment": {
+    "history_complete_closed_months": 6,
+    "positive_residual_months_min": 5,
+    "median_residual_min_exclusive": 0,
+    "population_revenue_cv_max": "0.50",
+    "recent3_to_full6_revenue_median_ratio_min": "0.80",
+    "points_per_rule": 25,
+    "total_rules": 4,
+    "exception_review_below_score": 75,
+    "critical_unknown_score": null,
+    "statistical_pd": null,
+    "statistical_pd_reason": "NO_VALIDATED_MERCHANT_MODEL"
+  },
+  "affordability": {
+    "revenue_stress_fraction": "0.20",
+    "reserve_thb": "5000.00",
+    "variable_cost_elasticity_fixture": "1.00",
+    "unknown_required_value_result": "NEEDS_INPUT"
+  },
+  "limit_fixture": {
+    "name": "DEMO_180D_FULL_DRAWDOWN_NO_REDRAW",
+    "repayment_intervals": 6,
+    "days_per_interval": 30,
+    "annual_nominal_simple_rate": "0.1825",
+    "day_count": "ACT_365_FIXED",
+    "periodic_rate": "0.015",
+    "fee_thb": "0.00",
+    "product_cap_thb": "50000.00",
+    "policy_cap_thb": "50000.00",
+    "remaining_exposure_headroom_thb": "50000.00",
+    "requested_thb": "30000.00",
+    "amount_step_thb": "100.00",
+    "utilization": "FULL_AT_START",
+    "revolving_redraws_validated": false
+  },
+  "billing_fixture": {
+    "terms_version": "DEMO_BILLING_V1",
+    "timezone": "Asia/Bangkok",
+    "day_count": "ACT_365_FIXED",
+    "annual_rate": "0.1825",
+    "interest_type": "SIMPLE_ON_OUTSTANDING_PRINCIPAL",
+    "rounding": "HALF_UP_AT_POSTING",
+    "internal_decimal_places_min": 12,
+    "interest_posting_events": ["PAYMENT_CUTOFF", "STATEMENT_CLOSE", "ACCOUNT_CLOSE"],
+    "effective_payment_time": "START_OF_EFFECTIVE_DAY",
+    "compound_interest": false,
+    "fee_baseline_thb_per_day": "0.00",
+    "nonzero_fee_test_thb_per_day": "1.00",
+    "allocation_order": ["DUE_FEES", "POSTED_ACCRUED_INTEREST", "PRINCIPAL"],
+    "available_limit_restored_from": "SETTLED_PRINCIPAL_ONLY",
+    "qr_repayment_fraction": "0.15",
+    "qr_provider_fee_thb": "0.00",
+    "tier_test": [
+      {"tier": "TIER_1", "principal_thb": "6000.00", "annual_rate": "0.09125"},
+      {"tier": "TIER_2", "principal_thb": "4000.00", "annual_rate": "0.1825"}
+    ]
+  },
+  "runtime_proposal": {
+    "max_llm_turns_per_active_run": 12,
+    "max_additional_transient_retries": 2,
+    "max_ocr_fallback_methods": 1,
+    "max_active_run_seconds": 600,
+    "global_budget_includes_all_agents": true,
+    "human_wait_in_active_latency": false,
+    "hard_currency_cost_cap": null,
+    "hard_currency_cost_cap_status": "SET_AFTER_MODEL_REGION_PRICING_AND_TEAM_BUDGET"
+  },
+  "comparison_planning_assumptions": {
+    "measured": false,
+    "output_to_input_price_ratio_for_sensitivity": "5",
+    "normal": {"S": {"input_tokens": 12000, "output_tokens": 2400}, "M": {"input_tokens": 15000, "output_tokens": 3200}},
+    "exception": {"S": {"input_tokens": 20000, "output_tokens": 4000}, "M": {"input_tokens": 26000, "output_tokens": 6000}},
+    "long_context": {"S": {"input_tokens": 48000, "output_tokens": 6000}, "M": {"input_tokens": 24000, "output_tokens": 5000}}
+  }
+}

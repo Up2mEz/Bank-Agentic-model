@@ -1,0 +1,13 @@
+.git
+.venv
+.local
+repos
+outputs
+.env*
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+agent_app/build
+agent_app/tests
+.obsidian
+.archify
