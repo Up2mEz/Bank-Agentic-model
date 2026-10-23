@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "purpose": "Independent synthetic business facts for the 2026-10-23 financial scenario audit; not a credit policy or training data",
+  "as_of": "2026-10-23T00:00:00+00:00",
+  "months": ["2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"],
+  "base": {"sales": [200000, 200000, 200000, 200000, 200000, 200000], "goods": 100000, "rent": 45000, "living_cost_thb": "15000.00", "debt_thb": "10000.00", "requested_thb": "30000.00"},
+  "scenarios": [
+    {"id": "C01", "name": "ข้อมูลครบ รายรับประจำ กำลังชำระเพียงพอ", "variant": "regular", "expected": "ตรวจยอดและจัดหมวดถูก ส่ง packet ให้คน ไม่อนุมัติเอง"},
+    {"id": "C02", "name": "ข้อมูลครบ แต่เงินเหลือไม่พอ", "variant": "low_capacity", "debt_thb": "16000.00", "expected": "capacity และวงเงินเสนอเป็นศูนย์ แม้เอกสารครบ"},
+    {"id": "C03", "name": "โอนวนสองบัญชี ระบุ own transfer ชัด", "variant": "own_labelled", "expected": "ตัดเงินโอนทั้งสองขาออกจากรายได้ ไม่บวกรายรับซ้ำ"},
+    {"id": "C04", "name": "โอนวนสองบัญชี แต่ memo ฝั่งรับเขียน sales", "variant": "own_misleading", "expected": "ตรวจคู่รายการต่างบัญชีและที่มา ไม่เชื่อคำว่า sales เพียงอย่างเดียว"},
+    {"id": "C05", "name": "เงินก้อนครั้งเดียว ไม่ทราบที่มา", "variant": "unknown_lump", "expected": "กันเงินก้อนออกจากรายได้ประจำ ขอที่มาและหลักฐานเจาะจง"},
+    {"id": "C06", "name": "เงินก้อนขายอุปกรณ์ คำบรรยายมี sales", "variant": "asset_sale", "expected": "แยกขายทรัพย์สินออกจากรายได้ประจำและขอหลักฐานที่มา"},
+    {"id": "C07", "name": "รายได้แกว่ง ขาดเงินสองเดือน แต่ median ดี", "variant": "volatile", "sales": [200000, 100000, 200000, 100000, 200000, 200000], "expected": "แสดงเดือนขาดมือและส่งตรวจเพิ่มเติม ไม่กลบด้วยค่ากลางหรือคะแนนรวม"},
+    {"id": "C08", "name": "แจ้งรายจ่ายต่ำ แต่มีเงินออกประจำไม่ทราบประเภท", "variant": "unexplained_outflow", "living_cost_thb": "1000.00", "expected": "ระบุรายการและถามประเภทค่าใช้จ่าย ไม่ฟันธงว่าเป็นหนี้"},
+    {"id": "C09", "name": "ตัวเลขที่แจ้งไม่ตรง statement", "variant": "declaration_mismatch", "message": "ยอดขายร้านเดือนละ 300000 บาท และต้นทุนธุรกิจรวมเดือนละ 10000 บาท", "expected": "เทียบยอดขาย 300000 กับ statement 200000 และต้นทุน 10000 กับ 145000 พร้อมรายการอ้างอิง"},
+    {"id": "C10", "name": "ขาด statement เดือนกรกฎาคม", "variant": "missing_month", "expected": "ระบุเดือน 2026-07 ที่ขาดและขอเพิ่ม ไม่คำนวณวงเงิน"},
+    {"id": "C11", "name": "แจ้งใช้สองบัญชี แต่ส่งบัญชีเดียว", "variant": "missing_account", "message": "ร้านใช้สองบัญชี OWN-A และ OWN-B ฉันส่ง statement เฉพาะ OWN-A ส่วน OWN-B ยังไม่ได้แนบ", "expected": "ขอ OWN-B และแสดงความครบถ้วนแยกแต่ละบัญชี"},
+    {"id": "C12", "name": "ธุรกิจเงินสดบางส่วนไม่ผ่านบัญชี", "variant": "cash_business", "sales": [150000, 150000, 150000, 150000, 150000, 150000], "goods": 70000, "rent": 30000, "message": "ยอดขายรวม 200000 บาทต่อเดือน แบ่งเป็นเงินเข้าบัญชี 150000 บาท และเงินสดที่ไม่ได้ฝาก 50000 บาท ยังไม่ได้ส่งสมุดขายเงินสด", "expected": "ไม่บวกรายได้เงินสดที่ยังไม่มีหลักฐาน ระบุสิ่งที่ยังพิสูจน์ไม่ได้และขอสมุดขายหรือหลักฐานอื่น"},
+    {"id": "C13", "name": "ไม่ทราบภาระหนี้", "variant": "unknown_debt", "debt_thb": null, "expected": "ขอข้อมูลหนี้ ไม่แทน unknown ด้วยศูนย์"},
+    {"id": "C14", "name": "ขาดเดือนพร้อมมีเงินก้อนไม่ทราบที่มา", "variant": "mixed_missing", "expected": "รวบรวมทั้งสองประเด็นไว้ในการส่งต่อ ไม่ทำคำถามเดือนที่ขาดหายไป"},
+    {"id": "C15", "name": "ส่ง statement ซ้ำบัญชีและรายการเดิม", "variant": "duplicate", "expected": "นับรายได้เพียงครั้งเดียว พร้อมร่องรอยรายการซ้ำ"},
+    {"id": "C16", "name": "ยอดคงเหลือท้าย statement ไม่สมดุล", "variant": "bad_balance", "expected": "หยุดคำนวณและส่งตรวจความขัดแย้งของตัวเลข"},
+    {"id": "C17", "name": "ไม่พบรายการหนี้ และลูกค้าแจ้งศูนย์", "variant": "declared_zero_debt", "debt_thb": "0.00", "expected": "แยกคำแจ้งไม่มีหนี้จากการพิสูจน์ว่าไม่มีหนี้ ใช้ความมั่นใจแบบ provisional"},
+    {"id": "C18", "name": "กำลังชำระพอวงเงินเล็ก แต่ไม่ถึง 10000", "variant": "limited_capacity", "debt_thb": "14000.00", "expected": "วงเงินตามกำลังชำระไม่เกิน 5600 แม้เพดานผลิตภัณฑ์เป็น 10000"}
+  ],
+  "truth_notes": [
+    "All sales rows in the base ledger are independently designated recurring shop sales for this synthetic oracle. The tested program receives the printed memo, not this designation.",
+    "C04 OWN-A/OWN-B contain same-day matched transfers of 80000 in each direction. No sale occurred in those rows despite a sales memo.",
+    "C06 receipt of 900000 is disposal of equipment, not recurring shop revenue. It must not be classified into recurring R even if median revenue is unchanged.",
+    "C07 monthly residual before reserve and new debt is [30000,-70000,30000,-70000,30000,30000]. This oracle does not decide approval; it requires the liquidity gaps to be surfaced for extra review.",
+    "C09/C11/C12 declarations use the existing free-text message because the current exact-key application schema has no structured fields for these claims. The audit records this limitation rather than inserting unsupported fields."
+  ]
+}

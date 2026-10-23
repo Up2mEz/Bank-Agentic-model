@@ -23,6 +23,16 @@ migration-verification and reporting utilities.
 weights are not included in the Git repository. `.env` is excluded, and no API key is
 needed for the main CatBoost/LightGBM experiment.
 
+## Merchant agent application boundary
+
+The merchant review application is maintained in `agent_app/`, with its own
+Python project, source, tests and experiment tools. It retains the import name
+`merchant_sandbox`; checkout shims preserve the previous launch paths. The
+research wheel excludes that shim and remains independent of the application.
+See [agent_app/README.md](../agent_app/README.md) for runtime instructions and
+shared fixture/policy locations. Folder separation does not integrate the native
+agent experiments into the existing web controller or change lending decisions.
+
 ## What agents do
 
 The authorized native agy CLI reviews supplied protocol/code extracts in plan mode.

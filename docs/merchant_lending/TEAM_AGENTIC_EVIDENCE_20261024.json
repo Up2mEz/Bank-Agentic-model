@@ -1,0 +1,318 @@
+{
+  "generated_utc": "2026-10-23T17:29:22.109325+00:00",
+  "scope": "Historical synthetic/replayed evidence counts, not a new live run or production accuracy estimate",
+  "raw_historical_artifacts_in_git": false,
+  "hash_basis": "Historical report hashes preserve original local bytes; worktree hashes preserve Windows bytes; Git-index hashes reflect repository line-ending normalization.",
+  "publication_worktree_runtime_sha256": {
+    "agent_app/src/merchant_sandbox/__init__.py": "a42358360fbe38f6c2ae70516770b464e74d7702f036bbe53fc9f38858429c76",
+    "agent_app/src/merchant_sandbox/agentic_openai.py": "cef1bf74a268e8a45fc9b337437cd318768cb9f885379b77d0506019acb9060a",
+    "agent_app/src/merchant_sandbox/agentic_review.py": "c7682dddf559e5816497296edc43d7622febd6dd4ef61e57b2144fb0a1616681",
+    "agent_app/src/merchant_sandbox/agentic_typhoon.py": "0079d2e9e889a30c72a28e5ac6040b0f077231bf1abaedcb80b8c286638a7b39",
+    "agent_app/src/merchant_sandbox/bank.py": "99664063fe5eb9f99a9a2bdec4557d7f970fe87a3223b092ff811e1acd2b10c6",
+    "agent_app/src/merchant_sandbox/core.py": "03cf53f056db2bec648e7130b20dcceb4f5b85b5bde6856fce8888d782c6ec90",
+    "agent_app/src/merchant_sandbox/lending.py": "b9c4295b15e8de9968f23233b69812306325df09129afa33969b741c5bce1bc0",
+    "agent_app/src/merchant_sandbox/ocr.py": "51135f937ee617b80de307d204c1d9efec8095114fe819a426b2d24a68b6b0bf",
+    "agent_app/src/merchant_sandbox/paths.py": "f279c5041af2ed210b85c621c2d24a38a3be2eb488cb523777d5dde4c1b8a4d1",
+    "agent_app/src/merchant_sandbox/review.py": "ee88856ead6b8ceca06bd70b25f452beaf010ca3762c3c033ba2a13777680d5d",
+    "agent_app/src/merchant_sandbox/server.py": "a51ef608cf8785247886e1984b735c8d52754b4cb2a0ff4118fcf06a3ccdf0da",
+    "agent_app/src/merchant_sandbox/statement_experiment.py": "d4cccc0415a7649f0929ca27bcaece48c52f8e589247a4dbbf848d69144ce56c",
+    "agent_app/src/merchant_sandbox/statement_report.py": "597312769a018490f07df5a9ea62c2aa366d72ea3724d7fac0931642fa79eec8",
+    "agent_app/src/merchant_sandbox/statements.py": "d7d542d12afccf435a9b7805f69931f1fde1edd993e61d40cb763f1ccc8a8996",
+    "agent_app/src/merchant_sandbox/typhoon.py": "e3e56e16165f7e52360a63a00e149a1f94f68bc805dcad8946948cb06bb76427"
+  },
+  "publication_git_runtime_sha256": {
+    "agent_app/src/merchant_sandbox/__init__.py": "a42358360fbe38f6c2ae70516770b464e74d7702f036bbe53fc9f38858429c76",
+    "agent_app/src/merchant_sandbox/agentic_openai.py": "cef1bf74a268e8a45fc9b337437cd318768cb9f885379b77d0506019acb9060a",
+    "agent_app/src/merchant_sandbox/agentic_review.py": "c7682dddf559e5816497296edc43d7622febd6dd4ef61e57b2144fb0a1616681",
+    "agent_app/src/merchant_sandbox/agentic_typhoon.py": "0079d2e9e889a30c72a28e5ac6040b0f077231bf1abaedcb80b8c286638a7b39",
+    "agent_app/src/merchant_sandbox/bank.py": "99664063fe5eb9f99a9a2bdec4557d7f970fe87a3223b092ff811e1acd2b10c6",
+    "agent_app/src/merchant_sandbox/core.py": "03cf53f056db2bec648e7130b20dcceb4f5b85b5bde6856fce8888d782c6ec90",
+    "agent_app/src/merchant_sandbox/lending.py": "b9c4295b15e8de9968f23233b69812306325df09129afa33969b741c5bce1bc0",
+    "agent_app/src/merchant_sandbox/ocr.py": "51135f937ee617b80de307d204c1d9efec8095114fe819a426b2d24a68b6b0bf",
+    "agent_app/src/merchant_sandbox/paths.py": "f279c5041af2ed210b85c621c2d24a38a3be2eb488cb523777d5dde4c1b8a4d1",
+    "agent_app/src/merchant_sandbox/review.py": "ee88856ead6b8ceca06bd70b25f452beaf010ca3762c3c033ba2a13777680d5d",
+    "agent_app/src/merchant_sandbox/server.py": "a51ef608cf8785247886e1984b735c8d52754b4cb2a0ff4118fcf06a3ccdf0da",
+    "agent_app/src/merchant_sandbox/statement_experiment.py": "d4cccc0415a7649f0929ca27bcaece48c52f8e589247a4dbbf848d69144ce56c",
+    "agent_app/src/merchant_sandbox/statement_report.py": "597312769a018490f07df5a9ea62c2aa366d72ea3724d7fac0931642fa79eec8",
+    "agent_app/src/merchant_sandbox/statements.py": "db9e8da4c6f3eaabcc1d237295e8950d2af5f3937bc7631ebfb34dabafc6499e",
+    "agent_app/src/merchant_sandbox/typhoon.py": "e3e56e16165f7e52360a63a00e149a1f94f68bc805dcad8946948cb06bb76427"
+  },
+  "historical_runs": [
+    {
+      "label": "Typhoon V4 final",
+      "local_artifact": "outputs/lending-agentic-local-20261023/agentic-v4-final/report.json",
+      "sha256": "30542bc6329e16599abec017dad1daaef0ab95c16439eaf62544db83bc7f6de0",
+      "case_count": 18,
+      "summary": {
+        "FAIL": 9,
+        "PASS": 8,
+        "PARTIAL": 1
+      },
+      "cases": [
+        {
+          "id": "C01",
+          "status": "FAIL"
+        },
+        {
+          "id": "C02",
+          "status": "PASS"
+        },
+        {
+          "id": "C03",
+          "status": "FAIL"
+        },
+        {
+          "id": "C04",
+          "status": "PASS"
+        },
+        {
+          "id": "C05",
+          "status": "FAIL"
+        },
+        {
+          "id": "C06",
+          "status": "PARTIAL"
+        },
+        {
+          "id": "C07",
+          "status": "PASS"
+        },
+        {
+          "id": "C08",
+          "status": "FAIL"
+        },
+        {
+          "id": "C09",
+          "status": "FAIL"
+        },
+        {
+          "id": "C10",
+          "status": "PASS"
+        },
+        {
+          "id": "C11",
+          "status": "FAIL"
+        },
+        {
+          "id": "C12",
+          "status": "FAIL"
+        },
+        {
+          "id": "C13",
+          "status": "PASS"
+        },
+        {
+          "id": "C14",
+          "status": "FAIL"
+        },
+        {
+          "id": "C15",
+          "status": "PASS"
+        },
+        {
+          "id": "C16",
+          "status": "FAIL"
+        },
+        {
+          "id": "C17",
+          "status": "PASS"
+        },
+        {
+          "id": "C18",
+          "status": "PASS"
+        }
+      ],
+      "run_status": "COMPLETE_WITH_TECHNICAL_FAILURES",
+      "total_tokens_if_in_report": null
+    },
+    {
+      "label": "Typhoon V4 heldout",
+      "local_artifact": "outputs/lending-agentic-local-20261023/heldout-v4-final/report.json",
+      "sha256": "fdca5767c27b7898e4c333a2f0112991bffd03f0205f74f67c0fa17278e03959",
+      "case_count": 4,
+      "summary": {
+        "FAIL": 1,
+        "PASS": 3
+      },
+      "cases": [
+        {
+          "id": "H01",
+          "status": "FAIL"
+        },
+        {
+          "id": "H02",
+          "status": "PASS"
+        },
+        {
+          "id": "H03",
+          "status": "PASS"
+        },
+        {
+          "id": "H04",
+          "status": "PASS"
+        }
+      ],
+      "run_status": null,
+      "total_tokens_if_in_report": null
+    },
+    {
+      "label": "Luna selected failed cases",
+      "local_artifact": "outputs/lending-openai-luna-20261023/run-01/report.json",
+      "sha256": "230f0dbe5170a3ed524ff05d4b7154729dfc64ff8d13a49571806bb0646ad0c3",
+      "case_count": 11,
+      "summary": {
+        "PASS": 8,
+        "PARTIAL": 2,
+        "FAIL": 1
+      },
+      "cases": [
+        {
+          "id": "H01",
+          "status": "PASS"
+        },
+        {
+          "id": "C01",
+          "status": "PASS"
+        },
+        {
+          "id": "C03",
+          "status": "PASS"
+        },
+        {
+          "id": "C05",
+          "status": "PARTIAL"
+        },
+        {
+          "id": "C06",
+          "status": "PASS"
+        },
+        {
+          "id": "C08",
+          "status": "PARTIAL"
+        },
+        {
+          "id": "C09",
+          "status": "PASS"
+        },
+        {
+          "id": "C11",
+          "status": "FAIL"
+        },
+        {
+          "id": "C12",
+          "status": "PASS"
+        },
+        {
+          "id": "C14",
+          "status": "PASS"
+        },
+        {
+          "id": "C16",
+          "status": "PASS"
+        }
+      ],
+      "run_status": "COMPLETED",
+      "total_tokens_if_in_report": null
+    },
+    {
+      "label": "Four-part Typhoon",
+      "local_artifact": "outputs/statement-four-part-20261023/typhoon-01/report.json",
+      "sha256": "64b84de194e3ef83f57c5f69f12d9df270b0bf56130ded9637e1aad0c4747298",
+      "case_count": 7,
+      "summary": {
+        "FAIL": 7
+      },
+      "cases": [
+        {
+          "id": "S01",
+          "status": "FAIL"
+        },
+        {
+          "id": "S02",
+          "status": "FAIL"
+        },
+        {
+          "id": "S03",
+          "status": "FAIL"
+        },
+        {
+          "id": "S04",
+          "status": "FAIL"
+        },
+        {
+          "id": "S05",
+          "status": "FAIL"
+        },
+        {
+          "id": "C11",
+          "status": "FAIL"
+        },
+        {
+          "id": "H01",
+          "status": "FAIL"
+        }
+      ],
+      "run_status": "COMPLETED",
+      "total_tokens_if_in_report": 269839
+    },
+    {
+      "label": "Four-part Luna",
+      "local_artifact": "outputs/statement-four-part-20261023/luna-01/report.json",
+      "sha256": "c9976c6cbef6b90ee4a258ea5f93816d6b798a0eef50a3d8c9fc9c131ac16dfd",
+      "case_count": 7,
+      "summary": {
+        "PASS": 2,
+        "FAIL": 5
+      },
+      "cases": [
+        {
+          "id": "C11",
+          "status": "PASS"
+        },
+        {
+          "id": "H01",
+          "status": "PASS"
+        },
+        {
+          "id": "S02",
+          "status": "FAIL"
+        },
+        {
+          "id": "S01",
+          "status": "FAIL"
+        },
+        {
+          "id": "S03",
+          "status": "FAIL"
+        },
+        {
+          "id": "S05",
+          "status": "FAIL"
+        },
+        {
+          "id": "S04",
+          "status": "FAIL"
+        }
+      ],
+      "run_status": "COMPLETED",
+      "total_tokens_if_in_report": 224512
+    }
+  ],
+  "publication_offline_verification": {
+    "python": {
+      "passed": 530,
+      "skipped": 15,
+      "xfailed": 1
+    },
+    "junit_sha256": "83d5bb1b5032414f80045567abfd1e679676db655a25c4c4b26dffe96add985c",
+    "javascript": {
+      "passed": 14,
+      "failed": 0
+    },
+    "javascript_receipt_sha256": "b0aed8115240303a19fe9d0ad4fc21ba13c893bc28abbb42d6f4ed704170f7e0",
+    "historical_skips_reason": "No Git-ignored run bundles in publication checkout",
+    "known_xfail": "Controller does not enforce cross-document opening/closing continuity",
+    "live_provider_calls": 0,
+    "environment": "Local Windows; existing project Python 3.12 environment; hosted CI tracked separately"
+  }
+}
