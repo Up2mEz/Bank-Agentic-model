@@ -81,11 +81,10 @@ for(const status of [400,401,403,409,422])test(`recovered pending approval error
 test('full staff render labels original analysis versions and shows one persisted human result',()=>{
   const nodes=new Map();
   const node=id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:'',value:'',children:[],querySelectorAll:()=>[],insertAdjacentHTML(_,v){this.innerHTML+=v;},append(v){this.children.push(v);}});return nodes.get(id);};
-  const s={document:{getElementById:node,querySelectorAll:()=>[],createElement:()=>({})},localStorage:{getItem:()=>null},setInterval(){}};
+  const s={document:{getElementById:node,querySelectorAll:()=>[],createElement:()=>({}),addEventListener(){}},localStorage:{getItem:()=>null},setInterval(){}};
   vm.createContext(s);
-  const html=fs.readFileSync(path.join(__dirname, '../src/merchant_sandbox/static/index.html'),'utf8');
-  const inline=html.match(/<script>([\s\S]*?)<\/script>/)[1].split('(async()=>{try{config=')[0];
-  vm.runInContext(inline,s);vm.runInContext(source,s);
+  const staff=fs.readFileSync(path.join(__dirname, '../src/merchant_sandbox/static/staff.js'),'utf8');
+  vm.runInContext(staff,s);vm.runInContext(source,s);
   const record={...c,source:'merchant_app',version:4,input:{},results:{onboarding_read:{onboarding_version:7}},policy_snapshot:{assessment:{}},feedback:[],trace:[],state:'APPROVED',decision:{status:'APPROVED',reason:'persisted human result',decided_at:'now',reviewer:'local-reviewer'},packet:{case_version:3,onboarding:{onboarding_version:7},recommendation:'EXCEPTION_REVIEW',financial:{schedule:[],assumptions:[]}}};
   s.record=record;
   vm.runInContext("config={provider:{configured:true},capabilities:{bank_review:true},scenarios:{}};bankCards.set(record.id,{bank:{version:9,kyc:{status:'APPROVED'}}});current=record;render();",s);

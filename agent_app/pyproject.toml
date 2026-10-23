@@ -17,12 +17,13 @@ dev = ["pytest>=8", "ruff>=0.11", "reportlab>=4,<5"]
 
 [project.scripts]
 merchant-agent = "merchant_sandbox.server:main"
+merchant-agent-review = "merchant_sandbox.review_api:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-merchant_sandbox = ["static/*.html", "static/*.js"]
+merchant_sandbox = ["static/*.html", "static/*.js", "static/*.css"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

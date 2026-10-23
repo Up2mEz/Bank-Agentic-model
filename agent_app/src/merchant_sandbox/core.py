@@ -61,6 +61,20 @@ class MutationError(SandboxError):
         self.code, self.status = code, status
 
 
+def unresolved_evidence_review(case):
+    """Unknown acceptance/running/interrupted commands cannot be replaced."""
+    record = (case.get("results") or {}).get("evidence_review") or {}
+    return bool(record) and record.get("status") not in {"COMPLETED", "FAILED"}
+
+
+def require_resolved_evidence_review(case):
+    if unresolved_evidence_review(case):
+        raise MutationError(
+            "งานเดิมยังไม่ทราบผล กรุณากู้คืนคำสั่งเดิมก่อนส่งคำสั่งใหม่หรือแก้ไขข้อมูล",
+            code="evidence_dispatch_unresolved",
+        )
+
+
 def archive_analysis(case):
     """Preserve the superseded evidence/calculation/decision before accepting supplements."""
     if case.get("results") or case.get("packet") or case.get("decision"):
@@ -320,6 +334,7 @@ class Store:
         replay = self.replay(case, "revise", payload, idempotency_key)
         if replay is not None:
             return replay
+        require_resolved_evidence_review(case)
         if (
             case["state"] in FINAL
             or case["active"]

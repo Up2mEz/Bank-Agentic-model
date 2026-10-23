@@ -1,0 +1,47 @@
+services:
+  agent-review:
+    build:
+      context: ..
+      dockerfile: agent_app/Dockerfile
+    environment:
+      AGENT_SERVICE_TOKEN: ${AGENT_SERVICE_TOKEN:?Set a private service token of at least 32 characters}
+      TYPHOON_API_KEY: ${TYPHOON_API_KEY:-}
+    volumes:
+      - agent-data:/workspace/outputs
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8781/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+  case-api:
+    build:
+      context: ..
+      dockerfile: agent_app/Dockerfile
+    entrypoint: ["python", "-m", "merchant_sandbox.server"]
+    command: ["--host", "0.0.0.0", "--port", "8770", "--db", "/workspace/outputs/cases.sqlite3"]
+    environment:
+      AGENT_SERVICE_URL: http://agent-review:8781
+      AGENT_SERVICE_TOKEN: ${AGENT_SERVICE_TOKEN:?Set a private service token of at least 32 characters}
+    ports:
+      - "127.0.0.1:8770:8770"
+    volumes:
+      - case-data:/workspace/outputs
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      agent-review:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8770/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+volumes:
+  agent-data:
+  case-data:

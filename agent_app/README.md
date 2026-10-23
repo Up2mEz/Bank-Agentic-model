@@ -29,9 +29,12 @@ agent_app/
 แก้ implementation ที่นี่เพียงแห่งเดียว ส่วน `src/creditrisk/` ที่ราก repository
 เป็นงานวิจัยโมเดลเครดิต มี dependencies และ tests ของตัวเอง
 
-**ขอบเขตเดิมยังเหมือนเดิม:** server ใช้ `LendingController`;
-native agent และรายงาน 4 ส่วนเป็นการทดลองแยก การย้ายโฟลเดอร์ไม่ได้เชื่อมทั้งสอง
-เข้าด้วยกันหรือเพิ่ม workflow เพิ่มวงเงิน การตัดสินอนุมัติยังเป็นของเจ้าหน้าที่
+**ทางเข้าหลักสำหรับทดลอง:** ใช้ [คู่มือ Agent service](SERVICE_GUIDE_TH.md)
+และ `python agent_app/run_demo.py` เพื่อเปิด Case API และ Agent service แยก process
+ฟอร์ม browser และ Android ผ่าน Go ส่งงานเข้า native review/report service เดียวกัน
+เมื่อกำหนด service URL ส่วน `run.py` ที่ไม่กำหนด service ยังคง controller เดิม
+เพื่อ compatibility รายงานใหม่เป็น evidence-only ไม่มี financial approval packet
+และยังไม่ได้เพิ่ม workflow เพิ่มวงเงิน การตัดสินยังเป็นของเจ้าหน้าที่
 
 ## ติดตั้งและรันจาก repository root
 
@@ -72,7 +75,7 @@ Python-only checkout ใหม่ใช้คำสั่งติดตั้�
 ```powershell
 # เฉพาะแอป ใช้ configuration ของ agent_app
 .\.venv\Scripts\python.exe -m pytest -c agent_app/pyproject.toml agent_app/tests -q
-node --test agent_app/tests/wallet_final_ui.test.cjs
+node --test agent_app/tests/*.test.cjs
 
 # รวมงานวิจัยและแอป ต้องติดตั้ง dependencies งานวิจัยเพิ่มก่อน
 .\.venv\Scripts\python.exe -m pip install -r requirements-core.txt -r requirements-dev.txt -e .

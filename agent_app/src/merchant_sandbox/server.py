@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hmac
 import json
 import os
@@ -17,6 +18,8 @@ from .bank import BankOnboardingClient
 from .core import ROOT, SCENARIOS, BaselinePlanner, SandboxError, Store, default_input
 from .lending import Documents, LendingController, app_input, customer_view
 from .review import Reviews, staff_dossier
+from .review_dispatch import ReviewDispatcher
+from .review_gateway import SAMPLES, ReviewGateway, review_documents
 from .typhoon import Config, TyphoonPlanner
 
 
@@ -41,6 +44,11 @@ def database_lock(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--allowed-host", action="append", default=[])
+    parser.add_argument("--agent-service-url", default="")
+    parser.add_argument("--agent-service-token-file", type=Path)
+    parser.add_argument("--agent-review-mode", choices=("offline", "typhoon"), default="typhoon")
     parser.add_argument("--env-file", type=Path)
     parser.add_argument("--bank-url", default="")
     parser.add_argument(
@@ -74,6 +82,10 @@ def main():
     )
     controller = LendingController(store, documents, config, bank=bank)
     reviews = Reviews(store, documents, bank)
+    evidence_service = ReviewGateway.load(args.agent_service_url, args.agent_service_token_file)
+    evidence_dispatch = ReviewDispatcher(
+        store, documents, evidence_service, mode=args.agent_review_mode
+    )
     review_nonce = secrets.token_urlsafe(32)
     # Keep run ownership visible before starting expensive network work.
     running: set[str] = set()
@@ -88,9 +100,12 @@ def main():
 
         def work():
             try:
-                controller.run(
-                    case_id, TyphoonPlanner(config), version, _claimed_revision=case["revision"]
-                )
+                if evidence_service.configured:
+                    evidence_dispatch.run(case)
+                else:
+                    controller.run(
+                        case_id, TyphoonPlanner(config), version, _claimed_revision=case["revision"]
+                    )
             except (SandboxError, OSError):
                 # Includes planner initialization errors before Controller.run owns cleanup.
                 current = store.get(case_id)
@@ -107,6 +122,32 @@ def main():
 
         threading.Thread(target=work, daemon=True).start()
 
+    def start_recovery(case_id, data):
+        with run_lock:
+            case, dispatch = evidence_dispatch.accept_recovery(case_id, data)
+            if not dispatch:
+                return case
+            running.add(case_id)
+
+        def work():
+            try:
+                evidence_dispatch.run(case, recovery=True)
+            finally:
+                with run_lock:
+                    running.discard(case_id)
+
+        threading.Thread(target=work, daemon=True).start()
+        return case
+
+    def visible_case(case):
+        # Original upload bytes stay in the durable command, outside staff JSON.
+        out = json.loads(json.dumps(case))
+        for version in [out, *out.get("history", [])]:
+            record = (version.get("results") or {}).get("evidence_review")
+            if isinstance(record, dict):
+                record.pop("command", None)
+        return {**out, "documents": documents.list(case)}
+
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, format, *args):
             pass  # Avoid logging user input or credentials.
@@ -122,7 +163,7 @@ def main():
             self.wfile.write(raw)
 
         def check_local(self):
-            hosts = {f"127.0.0.1:{args.port}", f"localhost:{args.port}"}
+            hosts = {f"127.0.0.1:{args.port}", f"localhost:{args.port}", *args.allowed_host}
             if self.headers.get("Host") not in hosts:
                 raise SandboxError("Host ไม่ใช่ sandbox ในเครื่อง")
             origin = self.headers.get("Origin")
@@ -271,21 +312,29 @@ def main():
                 path = urlparse(self.path).path
                 if path.startswith("/internal/"):
                     self.internal(path)
-                elif path in {"/", "/lab"}:
+                elif path == "/healthz":
+                    self.send(200, {"status": "ok", "component": "case-api"})
+                elif path in {"/", "/lab", "/test-application"}:
                     self.send(
                         200,
                         (
                             Path(__file__).parent
                             / "static"
-                            / ("index.html" if path == "/" else "lab.html")
+                            / {
+                                "/": "index.html",
+                                "/lab": "lab.html",
+                                "/test-application": "test-application.html",
+                            }[path]
                         ).read_bytes(),
                         "text/html; charset=utf-8",
                     )
-                elif path == "/lending.js":
+                elif path in {"/lending.js", "/staff.js", "/test-application.js", "/staff.css"}:
                     self.send(
                         200,
-                        (Path(__file__).parent / "static/lending.js").read_bytes(),
-                        "text/javascript; charset=utf-8",
+                        (Path(__file__).parent / "static" / path[1:]).read_bytes(),
+                        "text/css; charset=utf-8"
+                        if path.endswith(".css")
+                        else "text/javascript; charset=utf-8",
                     )
                 elif path == "/api/config":
                     self.send(
@@ -306,6 +355,8 @@ def main():
                                 "statement": "UPLOADED_DOCUMENT_OR_LAB_FIXTURE",
                                 "document_ocr": "typhoon-ocr",
                                 "human_decision_recording": "LOCAL_HUMAN_CAS",
+                                "agent_review": evidence_service.capabilities(),
+                                "manual_test_entry": "LOCAL_SYNTHETIC_ONLY",
                             },
                         },
                     )
@@ -330,7 +381,14 @@ def main():
                     )
                 elif path.startswith("/api/cases/") and len(path.split("/")) == 4:
                     case = store.get(path.split("/")[3])
-                    self.send(200, {**case, "documents": documents.list(case)})
+                    self.send(200, visible_case(case))
+                elif (
+                    path.startswith("/api/cases/")
+                    and len(path.split("/")) == 5
+                    and path.endswith("/evidence-review")
+                ):
+                    case = store.get(path.split("/")[3])
+                    self.send(200, evidence_service.latest(case, review_documents(documents, case)))
                 elif (
                     path.startswith("/api/cases/")
                     and len(path.split("/")) == 5
@@ -363,7 +421,12 @@ def main():
                 if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
                     raise SandboxError("ต้องใช้ application/json")
                 length = int(self.headers.get("Content-Length", "0"))
-                if not 0 < length <= (6 * 1024 * 1024 if path.startswith("/internal/") else 32_000):
+                upload = path.startswith("/api/cases/") and path.endswith("/documents")
+                if (
+                    not 0
+                    < length
+                    <= (6 * 1024 * 1024 if path.startswith("/internal/") or upload else 32_000)
+                ):
                     raise SandboxError("request body ไม่ถูกต้องหรือใหญ่เกินขอบเขต")
                 data = json.loads(self.rfile.read(length))
                 if not isinstance(data, dict):
@@ -373,6 +436,14 @@ def main():
                     self.internal(path, data)
                 elif path == "/api/cases":
                     self.send(201, store.create(data["input"], data["idempotency_key"]))
+                elif (
+                    len(parts) == 6
+                    and parts[1:3] == ["api", "cases"]
+                    and parts[4:] == ["evidence-review", "recover"]
+                ):
+                    if not evidence_service.configured:
+                        raise SandboxError("Agent service is not configured")
+                    self.send(202, visible_case(start_recovery(parts[3], data)))
                 elif (
                     len(parts) == 6
                     and parts[1:3] == ["api", "cases"]
@@ -391,7 +462,53 @@ def main():
                         )
                 elif len(parts) == 5 and parts[1:3] == ["api", "cases"]:
                     case_id, action = parts[3:]
-                    if action == "revise":
+                    if action == "evidence-review":
+                        if set(data) != {"version", "mode", "idempotency_key"}:
+                            raise SandboxError("ระบุ version, mode และ idempotency_key เท่านั้น")
+                        if not evidence_service.configured:
+                            raise SandboxError("ยังไม่ได้เชื่อม Agent service")
+                        case = store.get(case_id)
+                        self.send(
+                            202,
+                            evidence_service.submit(
+                                case,
+                                review_documents(documents, case),
+                                data["version"],
+                                data["mode"],
+                                data["idempotency_key"],
+                            ),
+                        )
+                    elif action in {"documents", "sample-documents"}:
+                        case = store.get(case_id)
+                        if not case.get("is_mock") or case.get("source") == "merchant_app":
+                            self.send(
+                                403, {"error": "ช่องทางนี้รับเอกสารเฉพาะเคสทดสอบ; ลูกค้าส่งผ่าน Android"}
+                            )
+                            return
+                        required = {"version", "idempotency_key"} | (
+                            {"document"} if action == "documents" else set()
+                        )
+                        if set(data) != required or data["idempotency_key"] is None:
+                            raise SandboxError("ระบุรุ่นคำขอ เอกสาร และ key เดิมให้ครบ")
+                        if action == "sample-documents":
+                            document = {
+                                "kind": "statement",
+                                "filename": "synthetic-statement.pdf",
+                                "mime_type": "application/pdf",
+                                "content_base64": base64.b64encode(
+                                    (SAMPLES / "synthetic-statement.pdf").read_bytes()
+                                ).decode("ascii"),
+                            }
+                        else:
+                            document = data["document"]
+                        case = documents.change(
+                            case,
+                            data["version"],
+                            data=document,
+                            idempotency_key=data["idempotency_key"],
+                        )
+                        self.send(200, {**case, "documents": documents.list(case)})
+                    elif action == "revise":
                         self.send(
                             200,
                             store.revise(
@@ -444,7 +561,7 @@ def main():
                     {"error": message, "code": getattr(exc, "code", "invalid_request")},
                 )
 
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(
         f"Merchant review: http://127.0.0.1:{args.port} (local development; demo lending policy)",
         flush=True,

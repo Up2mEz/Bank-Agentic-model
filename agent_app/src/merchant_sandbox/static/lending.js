@@ -2,7 +2,12 @@
 const bankCards=new Map();
 const reviewKinds=['loan','kyc','kyb'];
 const reviewSlot=(c,kind)=>'merchant-review-pending:'+c.id+':'+kind;
-const pendingReview=(c,kind)=>JSON.parse(localStorage.getItem(reviewSlot(c,kind))||'null');
+const pendingReview=(c,kind)=>{
+  const saved=localStorage.getItem(reviewSlot(c,kind));
+  if(!saved)return null;
+  try{const pending=JSON.parse(saved);if(!pending?.body||!pending.path)throw Error();return pending;}
+  catch{throw Error('อ่านคำสั่งพิจารณาที่ค้างไม่ได้ กรุณาเก็บข้อมูลเดิมไว้เพื่อตรวจสอบ');}
+};
 const hasPendingReview=c=>reviewKinds.some(kind=>pendingReview(c,kind));
 const reviewChoiceLabel=(kind,choice)=>({loan:{APPROVED:'อนุมัติ',DECLINED:'ไม่อนุมัติ',NEEDS_INFORMATION:'ขอข้อมูลเพิ่ม'},kyc:{APPROVED:'ผ่าน KYC',DECLINED:'ไม่ผ่าน KYC',RESUBMISSION_REQUESTED:'ขอข้อมูลตัวตนเพิ่ม'},kyb:{VERIFIED:'ยืนยันธุรกิจ',NEEDS_INFORMATION:'ขอข้อมูลธุรกิจเพิ่ม'}}[kind]?.[choice]||choice);
 function renderReviewRecovery(c,kind,target){
@@ -26,14 +31,14 @@ function renderHumanReview(c){
   $('reload-bank').onclick=()=>loadBankCard(c.id);
   if($('bank-actions')){
     const actions=[];
-    if(b.kyc?.status==='REVIEW')actions.push(['kyc','APPROVED','ผ่าน KYC'],['kyc','DECLINED','ไม่ผ่าน KYC'],['kyc','RESUBMISSION_REQUESTED','ขอข้อมูลตัวตนเพิ่ม']);
-    if(b.business)actions.push(['kyb','VERIFIED','ยืนยันธุรกิจ'],['kyb','NEEDS_INFORMATION','ขอข้อมูลธุรกิจเพิ่ม']);
-    for(const [kind,choice,label] of actions){const button=document.createElement('button');button.textContent=label;button.disabled=blocked||!config.capabilities.bank_review;button.onclick=()=>reviewAction(c,kind,choice).catch(showError);$('bank-actions').append(button);}
+    if(b?.kyc?.status==='REVIEW')actions.push(['kyc','APPROVED','ผ่าน KYC'],['kyc','DECLINED','ไม่ผ่าน KYC'],['kyc','RESUBMISSION_REQUESTED','ขอข้อมูลตัวตนเพิ่ม']);
+    if(b?.business)actions.push(['kyb','VERIFIED','ยืนยันธุรกิจ'],['kyb','NEEDS_INFORMATION','ขอข้อมูลธุรกิจเพิ่ม']);
+    for(const [kind,choice,label] of actions){const button=document.createElement('button');button.textContent=label;button.disabled=blocked||!config?.capabilities?.bank_review;button.onclick=()=>reviewAction(c,kind,choice).catch(showError);$('bank-actions').append(button);}
   }
   const decision=c.decision;
   $('assessment').insertAdjacentHTML('beforeend',`<article class="card"><h2>คำตัดสินโดยเจ้าหน้าที่</h2>${pair('ผลปัจจุบัน',decision?({APPROVED:'อนุมัติ',DECLINED:'ไม่อนุมัติ',NEEDS_INFORMATION:'ขอข้อมูลเพิ่ม'}[decision.status]):'ยังไม่มีคำตัดสิน')}${decision?pair('เหตุผลที่แสดงในแอป',decision.reason)+pair('เวลาตัดสิน',decision.decided_at)+pair('ผู้ตรวจในเครื่อง',decision.reviewer):''}${!final?'<label for="loan-review-reason">เหตุผลที่แสดงให้ผู้สมัคร</label><input id="loan-review-reason" maxlength="1200" placeholder="ระบุเหตุผลหรือรายการข้อมูลที่ต้องขอเพิ่ม"><div class="actions" id="loan-actions"></div>':''}<p class="notice">local-reviewer เป็นผู้ใช้เครื่องนี้ ยังไม่มี staff SSO / production role การอนุมัติเป็นผลพิจารณา ไม่มีสัญญาหรือการจ่ายเงิน</p></article>`);
   if($('loan-actions'))for(const [choice,label] of [['APPROVED','อนุมัติตามวงเงินเสนอ'],['DECLINED','ไม่อนุมัติ'],['NEEDS_INFORMATION','ขอข้อมูลเพิ่ม']]){
-    const button=document.createElement('button');button.textContent=label;button.disabled=blocked||(choice==='APPROVED'&&(!b||!c.packet?.financial||Boolean(decision)));button.onclick=()=>reviewAction(c,'loan',choice).catch(showError);$('loan-actions').append(button);
+    const button=document.createElement('button');button.textContent=label;button.disabled=blocked||(choice==='NEEDS_INFORMATION'&&typeof retainedDispatch==='function'&&Boolean(retainedDispatch(c)))||(choice==='APPROVED'&&(!b||!c.packet?.financial||Boolean(decision)||(typeof evidenceDecisionBlocked==='function'&&evidenceDecisionBlocked(c))));button.onclick=()=>reviewAction(c,'loan',choice).catch(showError);$('loan-actions').append(button);
   }
   for(const kind of reviewKinds)renderReviewRecovery(c,kind,kind==='loan'?'assessment':'application');
 }
@@ -49,6 +54,7 @@ async function reviewAction(c,kind,choice=null){
     if(['APPROVED','DECLINED'].includes(c.state))throw Error('เคสมีคำตัดสินสุดท้ายแล้ว');
     if(kind!=='loan'&&!b)throw Error('กรุณาโหลดสถานะธนาคารก่อน');
     if(!reason)throw Error('กรุณาระบุเหตุผลก่อนบันทึก');
+    if(kind==='loan'&&choice==='APPROVED'&&typeof evidenceDecisionBlocked==='function'&&evidenceDecisionBlocked(c))throw Error('ต้องมีผลตรวจหลักฐานปัจจุบันที่สมบูรณ์ก่อนอนุมัติ');
     const body={version:kind==='loan'?c.version:b.version,idempotency_key:crypto.randomUUID(),decision:choice,reason};
     if(kind==='loan'&&b)body.onboarding_version=b.version;
     pending={path:'/api/cases/'+encodeURIComponent(c.id)+(kind==='loan'?'/decision':'/onboarding/'+kind+'-decision'),body};
@@ -66,10 +72,11 @@ async function reviewAction(c,kind,choice=null){
   finally{busy=false;if(current?.id===c.id)render();}
 }
 function renderUploaded(c) {
-  const d=c.input,r=c.results,e=r.evidence,k=r.identity_verify,docs=c.documents||[];
-  const docCards=docs.map(doc=>`<article class="card"><h2>${esc(doc.kind==='identity'?'เอกสาร KYC':doc.kind==='business'?'หลักฐานธุรกิจ':'Statement')}</h2><p><a href="/api/documents/${encodeURIComponent(doc.id)}" target="_blank" rel="noopener">${esc(doc.filename)} ↗</a></p>${pair('อ่านเอกสารแล้ว',doc.ocr_pages.length+' / '+doc.pages+' หน้า')}${pair('SHA-256',doc.sha256)}${doc.ocr_pages.map(p=>`<details><summary>หน้า ${p.page} · ${esc(p.model)}</summary><pre>${esc(p.text)}</pre></details>`).join('')}<p class="notice">ผล OCR เป็นข้อความที่อ่านได้ ยังไม่ยืนยันเอกสารแท้ ไม่มีพิกัดกรอบข้อความหรือคะแนนความมั่นใจรายช่องจาก API นี้</p></article>`).join('');
-  $('application').innerHTML=`<div class="grid"><div><article class="card"><h2>ข้อมูลสมัครจากแอป</h2>${pair('ผู้สมัคร',d.applicant_name)}${pair('อีเมล',d.email)}${pair('โทรศัพท์',d.phone)}${pair('ร้าน',d.shop_name)}${pair('ประเภทธุรกิจ',d.business_type)}${pair('สถานที่ / ช่องทางขาย',d.business_location)}${pair('วัตถุประสงค์',d.purpose)}${pair('ค่าครองชีพ / เดือน',number(d.living_cost_thb)+' บาท')}${pair('ภาระหนี้ / เดือน',number(d.debt_thb)+' บาท')}${pair('ยินยอมส่งเอกสารให้ OCR',d.consent?'ยืนยันแล้ว':'ยังไม่ยืนยัน')}<p class="notice">ชื่อและข้อมูลการเงินเป็นคำแจ้งจากผู้สมัคร ยังต้องตรวจหลักฐานประกอบ</p></article></div><div><article class="card"><h2>การสมัครและ KYC</h2>${pair('บัญชีผู้ส่ง','ตรวจ login โดย Merchant backend')}${pair('รหัสเจ้าของคำขอ',c.owner_id)}${pair('ผล OCR เทียบชื่อ',k?.status==='CONFLICT'?'ชื่อไม่ตรง ต้องตรวจความสัมพันธ์':k?.extracted_names?.length?'พบชื่อที่อ่านได้ รอตรวจโดยเจ้าหน้าที่':'รอเจ้าหน้าที่ตรวจเอกสาร')}${pair('สถานะ KYC จากธนาคาร',r.onboarding_read?.snapshot?.kyc?.status||'ยังอ่านสถานะไม่ได้')}${pair('วิธีอ่านเอกสาร',k?.method||'รอ OCR')}<p class="notice">OCR ช่วยอ่านเอกสารเท่านั้น ผู้สมัครติดตามสถานะและรายการขอเพิ่มได้ใน Android app</p>${k?raw(k):''}</article>${docs.filter(x=>x.kind==='identity').length?'':'<article class="card">ยังไม่มีเอกสาร KYC</article>'}</div></div>`;
-  const rows=e?.months||[];
-  $('evidence').innerHTML=`<div class="grid"><div><article class="card"><h2>Statement ที่อ่านด้วย Typhoon OCR</h2>${pair('แหล่งข้อมูล','เอกสารที่ผู้สมัครแนบผ่าน Merchant backend')}${pair('ผลตรวจตาราง',e?.status||'ยังไม่ได้ตรวจ')}${pair('ช่วงที่ตรวจ',e?.expected_months?.join(', ')||'6 เดือนที่ปิดครบก่อนวันที่ยื่นคำขอ')}${pair('เดือนที่ขาด',e?.missing_months?.join(', ')|| (e?'ไม่มี':'ยังไม่ทราบ'))}${pair('รายการที่อ่านได้',e?.rows?.length??'ยังไม่มีผล')}${pair('รายการแยกออก',e?.excluded?.length??'ยังไม่มีผล')}<p class="notice">ตรวจยอดยกมา + รับ − จ่าย = คงเหลือทุกแถว แยกรายการตามคำบรรยายที่รองรับ รายการคลุมเครือพักให้เจ้าหน้าที่ตรวจ ยอดโอนเข้าไม่ได้ถูกนับเป็นยอดขายทั้งหมด</p>${e?.issues?.length?'<div class="callout">'+e.issues.map(x=>'<p>'+esc(x.reason)+'</p>').join('')+'</div>':''}</article><article class="card"><h2>ยอดรายเดือนที่แยกประเภทได้</h2>${rows.length?`<div class="tablewrap"><table><thead><tr><th>เดือน</th><th>ยอดขาย</th><th>ต้นทุนผันแปร</th><th>ต้นทุนคงที่</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.month)}</td><td>${number(x.R)}</td><td>${number(x.V)}</td><td>${number(x.F)}</td></tr>`).join('')}</tbody></table></div>`:'<p>ยังไม่มีผล</p>'}${e?'<details><summary>รายการและหน้า/แถวอ้างอิง</summary>'+raw(e.rows)+'</details><details><summary>รายการที่แยกออก</summary>'+raw(e.excluded)+'</details>':''}</article></div><div>${docCards||'<article class="card">ยังไม่มีเอกสาร</article>'}</div></div>`;
-  if(c.state==='WAIT_CUSTOMER') $('feedback').innerHTML='<div class="callout">'+c.feedback.map(x=>'<p>'+esc(x)+'</p>').join('')+'<p class="notice">รายการนี้แสดงให้เจ้าของคำขอใน Android app แล้ว</p></div>';
+  const d=c.input||{},r=c.results||{},docs=Array.isArray(c.documents)?c.documents.filter(Boolean):[];
+  const app=c.source==='merchant_app';
+  $('application').innerHTML=`<article><h2>ข้อมูลผู้สมัครและร้านค้า</h2><p class="notice">${app?'คำขอจาก Android · ข้อมูลเป็นคำแจ้งของผู้สมัคร':'เคสทดสอบในเครื่อง · ไม่ใช่ช่องทางรับสมัครจริง'}</p>${pair('ผู้สมัคร',d.applicant_name)}${pair('ร้าน',d.shop_name)}${pair('อีเมล',d.email)}${pair('โทรศัพท์',d.phone)}${pair('ประเภทธุรกิจ',d.business_type)}${pair('ช่องทาง / สถานที่ขาย',d.business_location)}${pair('วัตถุประสงค์',d.purpose)}${pair('ค่าครองชีพ / เดือน',number(d.living_cost_thb))}${pair('ภาระหนี้ / เดือน',number(d.debt_thb))}${pair('ยินยอมให้ตรวจเอกสาร',d.consent?'ยืนยันแล้ว':'ยังไม่ยืนยัน')}<details><summary>ข้อมูลที่ Agent อ่านก่อนหน้า</summary>${raw(r.identity_verify||{})}${raw(r.onboarding_read||{})}</details></article>`;
+  $('evidence').innerHTML=`<h2>เอกสารและผลอ่านที่มีอยู่</h2><p class="notice">การอัปโหลดไฟล์ไม่ได้หมายความว่า OCR อ่านหรือแยกประเภทรายการแล้ว ผล OCR ไม่ยืนยันว่าเอกสารแท้</p>${docs.map(doc=>{
+    const pages=Array.isArray(doc.ocr_pages)?doc.ocr_pages.filter(Boolean):[];
+    return `<article class="document"><h3>${esc(doc.filename||'เอกสารเดิม')}</h3>${pair('ประเภท',doc.kind||'ยังไม่ทราบ')}${doc.id?'<a href="/api/documents/'+encodeURIComponent(doc.id)+'" target="_blank" rel="noopener">เปิดไฟล์ต้นฉบับ ↗</a>':''}<p>${pages.length?esc(pages.length)+' หน้าที่มีข้อความ OCR · ตรวจแหล่งที่มาในแต่ละหน้า':'ยังไม่มีผล OCR สำหรับไฟล์นี้'}</p>${pages.map(p=>`<details><summary>หน้า ${esc(p.page??'ไม่ทราบ')} · ${esc(p.model||p.source||'ไม่ทราบแหล่ง OCR')}</summary><pre>${esc(p.text)}</pre></details>`).join('')}<details><summary>ข้อมูลเอกสารและ SHA-256</summary>${raw({id:doc.id,sha256:doc.sha256,pages:doc.pages,ocr_source:doc.ocr_source,synthetic:doc.synthetic})}</details></article>`;
+  }).join('')||'<p class="empty">ยังไม่มีเอกสารในเคสนี้</p>'}<details><summary>ผลอ่านจาก workflow เดิม</summary>${raw(r.evidence||{})}</details>`;
 }

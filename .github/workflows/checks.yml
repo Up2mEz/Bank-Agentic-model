@@ -24,4 +24,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node --test agent_app/tests/wallet_final_ui.test.cjs
+      - run: node --test agent_app/tests/*.test.cjs
+
+  service-containers:
+    runs-on: ubuntu-latest
+    env:
+      AGENT_SERVICE_TOKEN: ci-synthetic-service-token-for-isolated-tests-only
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Build and start the isolated service stack
+        run: docker compose -p agent-review-ci -f agent_app/compose.yaml up --build --detach --wait --wait-timeout 120
+      - name: Check staff assets and packaged PDF runtime
+        run: |
+          curl --fail --silent http://127.0.0.1:8770/healthz
+          curl --fail --silent http://127.0.0.1:8770/test-application > /dev/null
+          curl --fail --silent http://127.0.0.1:8770/staff.css > /dev/null
+          docker compose -p agent-review-ci -f agent_app/compose.yaml exec -T agent-review python -c "from merchant_sandbox.paths import ROOT; from merchant_sandbox.ocr import render_page; assert render_page((ROOT/'examples/merchant_sandbox/documents/synthetic-statement.pdf').read_bytes(),'application/pdf',1)"
+      - name: Stop only the isolated CI stack
+        if: always()
+        run: docker compose -p agent-review-ci -f agent_app/compose.yaml down

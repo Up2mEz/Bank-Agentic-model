@@ -1,9 +1,15 @@
 # สถานะ Agentic workflow สำหรับทีม — 24 ตุลาคม 2026
 
 ตอนนี้มี **controller กลางคุมสถานะและสิทธิ์เรียก tool โดยทำงานทีละขั้น** แล้ว
-ส่วน native agent ที่เลือกเครื่องมือจากหลักฐานและรับผลกลับมาเป็นรอบ ๆ ทำงานได้ใน
-ชุดทดลอง local แต่ยังไม่ได้เสียบเข้าเว็บเจ้าหน้าที่ เส้นทางเว็บกับเส้นทางทดลองจึงต้อง
-ตรวจแยกกัน ยังไม่ใช้ LangGraph/LangChain และไม่มี specialist agents ทำงานขนานกัน
+ส่วน native agent ที่เลือกเครื่องมือจากหลักฐานและรับผลกลับมาเป็นรอบ ๆ ต่อผ่าน
+Agent review service แยก process แล้วเมื่อกำหนด service URL ทั้ง browser test form
+และ Android submit ใช้ service เดียวกัน ยังไม่ใช้ LangGraph/LangChain และไม่มี
+specialist agents ทำงานขนานกัน อ่าน [คู่มือ service](../../agent_app/SERVICE_GUIDE_TH.md)
+เพื่อรันเส้นทางใหม่นี้ ผลยังเป็น evidence-only และไม่ทำให้ model acceptance เดิมผ่าน
+
+ผลปัจจุบันหลังเชื่อม service อยู่ใน [รายงาน acceptance](AGENT_SERVICE_ACCEPTANCE_20261024_TH.md):
+Python 677 ผ่าน, UI 42 ผ่าน; Typhoon ลองใหม่ยัง TECHNICAL_REVIEW จาก native tool
+นอก allowlist ส่วนตัวเลข model scenarios เดิมด้านล่างยังเป็นผล snapshot เดิม
 
 PR นี้เผยแพร่ Python application ที่เดิมอยู่เฉพาะใน workspace ให้ทีม clone แล้วรันได้
 โค้ดอยู่ใน `agent_app/` พร้อม tests, fixtures สังเคราะห์, adapters และตัวรันทดลอง
@@ -13,9 +19,12 @@ Go/Flutter อยู่ใน repository Merchant อีกชุด; PR นี�
 
 | ส่วน | รูปแบบการทำงานจริง | สถานะ |
 |---|---|---|
-| Staff API / Android integration | `LendingController` เป็น state machine; `allowed()` กำหนด tool ที่เรียกได้; planner เลือกหนึ่งตัว แล้ว controller execute/save ก่อนรอบถัดไป | มีใน server และ contract ฝั่ง Go |
-| Native agent experiment | `ReviewSession` คุมหลักฐาน/tool schema; Typhoon หรือ OpenAI เลือก tool พร้อม arguments; validator ตรวจแล้วจึง execute และส่ง observation กลับ | รันผ่าน CLI; ยังไม่เชื่อมเข้า staff server |
-| รายงาน statement 4 ส่วน | `build_staff_report` และ renderer ใช้โค้ดรวม ledger, refs, หลักฐานประกอบและคำถาม | มี module/CLI/tests; ยังไม่ต่อเข้าหน้าเจ้าหน้าที่ |
+| Staff API / Android integration | Case API ถือ input/version/เอกสาร; configured submit ส่ง persisted job ไป Agent service; unconfigured server ยังใช้ `LendingController` เดิม | contract Go เดิม พร้อม service gateway/dispatcher |
+| Native agent | `ReviewSession` คุมหลักฐาน/tool schema; Typhoon เลือก tool พร้อม arguments; validator ตรวจแล้ว execute และส่ง observation กลับ | service ใช้ Typhoon; OpenAI ยังเป็น CLI experiment |
+| รายงาน statement 4 ส่วน | `build_staff_report` รวม ledger, refs, หลักฐานประกอบและคำถาม | แสดงผ่าน service และเว็บเจ้าหน้าที่แล้ว |
+
+ผลทดสอบ model scenarios และเส้นทาง controller ด้านล่างเป็นหลักฐานจาก snapshot
+ก่อนเพิ่ม service ต้องแยกจาก service integration ไม่ถือว่าได้ rerun โมเดลทั้งหมด
 
 ดังนั้นคำอธิบายสั้น ๆ คือ **มี orchestrator แบบเขียนเอง และ execute tools แบบ sequential**
 ตัว native loop มีความเป็น agentic ตรงที่โมเดลเลือกการตรวจครั้งต่อไปจาก context และผล
@@ -23,7 +32,7 @@ tool ก่อนหน้า แต่สิทธิ์ การคำนว�
 การมีชื่อ tool หลายชื่อไม่ได้หมายความว่าแต่ละ tool เป็น LLM agent อีกตัว
 มี background thread สำหรับส่งงานของเคสจาก HTTP แต่ไม่ได้เป็น parallel multi-agent
 
-### เส้นทางที่เว็บ/แอปใช้อยู่ใน source
+### เส้นทาง controller เดิมที่ยังเก็บเพื่อ compatibility
 
 ```mermaid
 flowchart TD

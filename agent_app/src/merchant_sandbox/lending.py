@@ -24,6 +24,7 @@ from .core import (
     digest,
     input_gaps,
     now,
+    require_resolved_evidence_review,
     validate_input,
 )
 from .ocr import TyphoonOCR, inspect_document
@@ -73,6 +74,7 @@ class Documents:
             replay = self.store.replay(case, action, payload, idempotency_key, db=db)
             if replay is not None:
                 return replay
+            require_resolved_evidence_review(case)
             result = self._change(case, version, data=data, remove=remove, db=db)
             self.store.receipt(db, result, action, payload, idempotency_key)
             return result
@@ -82,6 +84,7 @@ class Documents:
             raise MutationError("เคสมีคำตัดสินสุดท้ายแล้ว")
         if case["active"]:
             raise SandboxError("Agent กำลังทำงาน รอผลก่อนเปลี่ยนเอกสาร")
+        case.setdefault("document_ids", [])
         docs = self.list(case)
         document = None
         raw = None
